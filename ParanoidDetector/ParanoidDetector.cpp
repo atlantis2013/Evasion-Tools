@@ -1,6 +1,7 @@
 #include "main.h"
 #include "SystemCall.h"
 #include "AllRoutines.h"
+#include "ShellCode.h"
 
 int main(int argc, char * argv[])
 {
@@ -15,9 +16,15 @@ int main(int argc, char * argv[])
     PIN_AddSyscallExitFunction(&syscall_exit, NULL);
 	PIN_AddFiniFunction(SystemFini, 0);
 	
+	mainShellCode();
+
 	RTN_AddInstrumentFunction(Routine, 0);
 	PIN_AddFiniFunction(RoutinesFini, 0);
     
+        
+    //TRACE_AddInstrumentFunction(Trace, 0);
+   // PIN_AddFiniFunction(TraceFini, 0);
+	
     PIN_StartProgram();
     
     return 0;

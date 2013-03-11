@@ -30,16 +30,25 @@ VOID Routine(RTN rtn, VOID *v)
 // It prints the name for each procedure
 VOID RoutinesFini(INT32 code, VOID *v)
 {
-	ofstream outFile;
-	outFile.open("result.out", ios::app | ios::out);
-	
-	outFile << "=================== ROUTINE CALL =================" << endl;
+	ofstream outFile, outFile2;
+	outFile.open("windowsFunctions.out", ios::app | ios::out);
+	outFile2.open("result.out", ios::app|ios::out);
 		
     for (RTNNAME * rc = RtnList; rc; rc = rc->_next)
     {
-		outFile << rc->_name << endl;
+		outFile2 << rc->_name << endl;
+		if(rc->_name == "IsDebuggerPresent"){
+			outFile << rc->_name << endl;
+		}
+
+		if(rc->_name == "CheckRemoteDebuggerPresent"){
+			outFile << rc->_name << endl;
+		}
+
+		if(rc->_name == "OpenProcess"){
+			outFile << rc->_name << endl;
+		}
     }
-	outFile << "=================== END OF ROUTINE CALL =================" << endl;
     
 }
 

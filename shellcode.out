@@ -1,0 +1,8 @@
+#
+# Shellcode detector
+#
+0x00304A48::ParanoidMalwarePack.exe  sidt ptr [ebp-0xc]-> anti-virtualization: sidt
+0x00304A7B::ParanoidMalwarePack.exe  cmp dword ptr [ebp-0xc], 0xdead0000-> anti-virtualization: sldt()
+0x00304A99::ParanoidMalwarePack.exe  smsw eax-> anti-virtualization: smsw()
+0x00304C06::ParanoidMalwarePack.exe  cmp ebx, 0x564d5868-> anti-virtualization: IN
+0x00304C06::ParanoidMalwarePack.exe  cmp ebx, 0x564d5868-> anti-virtualization: IN

@@ -251,6 +251,7 @@
   <ItemGroup>
     <ClCompile Include="AllRoutines.cpp" />
     <ClCompile Include="ParanoidDetector.cpp" />
+    <ClCompile Include="ShellCode.cpp" />
     <ClCompile Include="SystemCall.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -259,6 +260,7 @@
   <ItemGroup>
     <ClInclude Include="AllRoutines.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="ShellCode.h" />
     <ClInclude Include="SystemCall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
