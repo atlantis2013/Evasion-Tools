@@ -7,6 +7,10 @@ typedef struct RtnName{
 // Linked list
 RTNNAME *RtnList = 0;
 
+
+bool switchDesktop = 0;
+bool setThreadDesktop = 0;
+
 const char * StripPath(const char * path)
 {
     const char * file = strrchr(path,'/');
@@ -31,8 +35,8 @@ VOID Routine(RTN rtn, VOID *v)
 VOID RoutinesFini(INT32 code, VOID *v)
 {
 	ofstream outFile, outFile2;
-	outFile.open("windowsFunctions.out", ios::app | ios::out);
-	outFile2.open("result.out", ios::app|ios::out);
+	outFile.open("logs\\windowsFunctions.out", ios::app | ios::out);
+	outFile2.open("logs\\allWindowsFunctions.out", ios::app|ios::out);
 		
     for (RTNNAME * rc = RtnList; rc; rc = rc->_next)
     {
@@ -47,6 +51,26 @@ VOID RoutinesFini(INT32 code, VOID *v)
 
 		if(rc->_name == "OpenProcess"){
 			outFile << rc->_name << endl;
+		}
+
+		if(rc->_name == "SetUnhandledExceptionFilter"){
+			outFile << rc->_name << endl;
+		}
+
+		if(rc->_name == "BlockInput"){
+			outFile << rc->_name << endl;
+		}
+
+		if(rc->_name == "SwitchDesktop"){
+			switchDesktop = 1;
+		}
+
+		if(rc->_name == "SetThreadDesktop"){
+			setThreadDesktop = 1;
+		}
+
+		if(switchDesktop == 1 && setThreadDesktop == 1){
+			outFile << "Switch Desktop technique\n";
 		}
     }
     

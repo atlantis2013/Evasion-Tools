@@ -12,9 +12,9 @@ int main(int argc, char * argv[])
 		cerr << endl << KNOB_BASE::StringKnobSummary() << endl;
 		return 0;
     }
+	setTraceFile("logs\\systemCall.out");
 	PIN_AddSyscallEntryFunction(&syscall_entry, NULL);
     PIN_AddSyscallExitFunction(&syscall_exit, NULL);
-	PIN_AddFiniFunction(SystemFini, 0);
 	
 	mainShellCode();
 
