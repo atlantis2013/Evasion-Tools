@@ -72,6 +72,7 @@ std::string dumpInstruction(INS ins)
 void detect(std::string thisItr){
 	// Anti-VM
 	if(thisItr.find("0F 01 E0") != thisItr.npos){
+		shellTraceFile << "SMSW\n";
 		if(prevInst.find("B8 CC CC CC CC") != prevInst.npos){
 			shellTraceFile << "========================= Anti-VM: SMSW technique =========================\n";
 			shellTraceFile << prevInst << "\n";
@@ -80,6 +81,7 @@ void detect(std::string thisItr){
 	}
 
 	if(thisItr.find("81 7D F4 00 00 AD DE") != thisItr.npos){
+		shellTraceFile << "SLDT\n";
 		if(prevInst.find("0F 00 45 F4") != prevInst.npos){
 			shellTraceFile << "========================= Anti-VM: SLDT technique =========================\n";
 			shellTraceFile << prevInst << "\n";
@@ -93,6 +95,7 @@ void detect(std::string thisItr){
 	}
 
 	if(thisItr.find("81 FB 68 58 4D 56") != thisItr.npos){
+		shellTraceFile << "IN\n";
 		if(prevInst.find("ED") != prevInst.npos){
 			shellTraceFile << "========================= Anti-VM: IN technique =========================\n";
 			shellTraceFile << prevInst << "\n";
@@ -105,7 +108,7 @@ void detect(std::string thisItr){
 		NTGlobalFlag = 1;
 	}
 
-	if(NTGlobalFlag && thisItr.find("8B 40 68") != thisItr.npos){
+	/*if(NTGlobalFlag && thisItr.find("8B 40 68") != thisItr.npos){
 		if(prevInst.find("8B 40 30") != prevInst.npos){
 			shellTraceFile << "========================= Anti-Debug: NtGlobalFlags technique =========================\n";
 			shellTraceFile << NTGlobalInstr << "\n";
@@ -120,7 +123,7 @@ void detect(std::string thisItr){
 			shellTraceFile << prevInst << "\n";
 			shellTraceFile << thisItr << "\n\n";
 		}
-	}
+	}*/
 	// Anti-Debugging
 }
 

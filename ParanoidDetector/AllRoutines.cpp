@@ -1,15 +1,76 @@
 #include "AllRoutines.h"
-
+#include <algorithm>
 typedef struct RtnName{
     string _name;
     struct RtnName * _next;
 }RTNNAME;
 // Linked list
 RTNNAME *RtnList = 0;
+namespace WINDOWS
+{
+#include <stdio.h>
+	#include <iostream>
+	#include <fstream>
+	#include <iomanip>
+	#include <set>
+	#include <list>
+	#include <sstream>
+	#include <tchar.h>
+	#include <Windows.h>
+	#include <conio.h>
+	#include <excpt.h>
+	#include <Psapi.h>
+	#include <algorithm>
+	#include <string>
+	#include <tlhelp32.h>
+	#include <windows.h>
+	#include <stdio.h>
+	#include <wchar.h>
+	#include <string.h>
 
+	int getProcessID(string procName){
+		  HANDLE hProcessSnap;
 
+		  PROCESSENTRY32 pe32;
+
+		  // Take a snapshot of all processes in the system.
+		  hProcessSnap = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+		  if( hProcessSnap == INVALID_HANDLE_VALUE )
+		  {
+			return( -1 );
+		  }
+
+		  // Set the size of the structure before using it.
+		  pe32.dwSize = sizeof( PROCESSENTRY32 );
+
+		  // Retrieve information about the first process,
+		  // and exit if unsuccessful
+		  if( !Process32First( hProcessSnap, &pe32 ) )
+		  {
+			CloseHandle( hProcessSnap );          // clean the snapshot object
+			return( -1 );
+		  }
+
+		  // Now walk the snapshot of processes, and
+		  // display information about each process in turn
+		  do
+		  {
+			 if(pe32.szExeFile == procName){
+				 return pe32.th32ProcessID;
+			 }
+		  } while( Process32Next( hProcessSnap, &pe32 ) );
+
+		  CloseHandle( hProcessSnap );
+		  return( -1 );
+	}
+}
+std::ofstream TraceFile;
 bool switchDesktop = 0;
 bool setThreadDesktop = 0;
+bool isdebuggerpresent = 0;
+bool checkremote = 0;
+bool SetUnhandledExceptionFilter = 0;
+bool blockInput = 0;
 
 const char * StripPath(const char * path)
 {
@@ -29,37 +90,122 @@ VOID Routine(RTN rtn, VOID *v)
     RtnList = rc;
 }
 
+bool isSeDebugCheck = 0;
+bool virtualdisk = 0;
+bool vm = 0;
+
+VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
+{
+    wstring w = wstring(arg1);
+	transform(w.begin(), w.end(),w.begin(),towupper);
+	//wcout << w << "\n";
+
+	if( w.find(L"VMWARE") != w.npos || w.find(L"VMTOOLS") != w.npos || w.find(L"VM") != w.npos){
+		if(vm==0){
+			TraceFile << "Anti-VM: Checking for vm environment (VMWare, VMTools in registry)" << "\n";
+			vm = 1;
+		}
+	}
+
+
+}
+
+VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
+{
+    wstring w = wstring(arg1);
+	transform(w.begin(), w.end(),w.begin(),towupper);
+	if(w.find(L"0") != w.npos || w.find(L"IDENTIFIER")!= w.npos){
+		if(virtualdisk == 0){
+			
+		TraceFile << "Anti-VM: Checking on virtual disk.\n";
+		virtualdisk =1 ;
+		}
+	}
+}
+
+
+VOID PrintArguments_Process(CHAR * name, ADDRINT arg0)
+{
+	if(WINDOWS::getProcessID("csrss.exe") == arg0 && isSeDebugCheck == 0){
+		TraceFile << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
+		isSeDebugCheck = 1;
+	}
+}
+VOID Image(IMG img, VOID *v)
+{
+	RTN cfwRtn = RTN_FindByName(img, "RegOpenKeyExW");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
+        IARG_ADDRINT, "RegOpenKeyExW",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+
+    cfwRtn = RTN_FindByName(img, "RegQueryValueExW");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegQueryKey,
+        IARG_ADDRINT, "RegQueryValueEx",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+
+	/* checks for SeDebug*/
+	cfwRtn = RTN_FindByName(img, "OpenProcess");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_Process,
+        IARG_ADDRINT, "OpenProcess",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+}
 
 // This function is called when the application exits
 // It prints the name for each procedure
 VOID RoutinesFini(INT32 code, VOID *v)
 {
 	ofstream outFile, outFile2;
-	outFile.open("logs\\windowsFunctions.out", ios::app | ios::out);
-	outFile2.open("logs\\allWindowsFunctions.out", ios::app|ios::out);
+	outFile2.open("logs\\allFunctions.out", ios::app|ios::out);
 		
     for (RTNNAME * rc = RtnList; rc; rc = rc->_next)
     {
 		outFile2 << rc->_name << endl;
-		if(rc->_name == "IsDebuggerPresent"){
-			outFile << rc->_name << endl;
+		
+		if(rc->_name == "IsDebuggerPresent" && isdebuggerpresent == 0){
+			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
+			isdebuggerpresent = 1;
 		}
 
-		if(rc->_name == "CheckRemoteDebuggerPresent"){
-			outFile << rc->_name << endl;
+		if(rc->_name == "CheckRemoteDebuggerPresent" && checkremote == 0){
+			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
+			checkremote = 1;
 		}
 
-		if(rc->_name == "OpenProcess"){
-			outFile << rc->_name << endl;
+		if(rc->_name == "SetUnhandledExceptionFilter" && SetUnhandledExceptionFilter == 0){
+			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
+			SetUnhandledExceptionFilter = 1;
 		}
 
-		if(rc->_name == "SetUnhandledExceptionFilter"){
-			outFile << rc->_name << endl;
+		if(rc->_name == "BlockInput" && blockInput == 0){
+			TraceFile << "Anti-Debugging: Executable attempts block input." << endl;
+			blockInput = 1;
 		}
 
-		if(rc->_name == "BlockInput"){
-			outFile << rc->_name << endl;
-		}
+
 
 		if(rc->_name == "SwitchDesktop"){
 			switchDesktop = 1;
@@ -70,34 +216,27 @@ VOID RoutinesFini(INT32 code, VOID *v)
 		}
 
 		if(switchDesktop == 1 && setThreadDesktop == 1){
-			outFile << "Switch Desktop technique\n";
+			TraceFile << "Anti-Debugging: Executable attempts to switch desktop.\n";
+			switchDesktop = 0;
+			setThreadDesktop = 0;
 		}
     }
     
 }
-
-/*int main(int argc, char * argv[])
+VOID Fini(INT32 code, VOID *v)
 {
-    // Initialize symbol table code, needed for rtn instrumentation
-    PIN_InitSymbols();
+    
+    TraceFile.close();
+}
 
-    outFile.open("result.out");
-
-    // Initialize pin
-    if (PIN_Init(argc, argv)) {
-		cerr << "This Pintool returns all the routines that are executed" << endl;
-		cerr << endl << KNOB_BASE::StringKnobSummary() << endl;
-		return;
-	}
-
+int mainRoutine()
+{
+	TraceFile.open("logs\\functions.out");
     // Register Routine to be called to instrument rtn
     RTN_AddInstrumentFunction(Routine, 0);
-
-    // Register Fini to be called when the application exits
+    PIN_AddFiniFunction(RoutinesFini, 0);
+	IMG_AddInstrumentFunction(Image, 0);
     PIN_AddFiniFunction(Fini, 0);
     
-    // Start the program, never returns
-    PIN_StartProgram();
-    
     return 0;
-}*/
+}

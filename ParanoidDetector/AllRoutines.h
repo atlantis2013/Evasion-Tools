@@ -11,3 +11,4 @@
 const char * StripPath(const char * path);
 VOID Routine(RTN rtn, VOID *v);
 VOID RoutinesFini(INT32 code, VOID *v);
+int mainRoutine();
