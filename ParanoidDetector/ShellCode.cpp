@@ -14,6 +14,9 @@ ofstream shellTraceFile("logs\\shellCode.out");
 
 std::string prevInst;
 
+std::ofstream TraceAntiDebug3;
+std::ofstream TraceAntiVirtual3;
+std::ofstream TraceAntiSandbox3;
 // NTGlobalFlag
 bool NTGlobalFlag = 0;
 string NTGlobalInstr = "";
@@ -77,6 +80,7 @@ void detect(std::string thisItr){
 			shellTraceFile << "========================= Anti-VM: SMSW technique =========================\n";
 			shellTraceFile << prevInst << "\n";
 			shellTraceFile << thisItr << "\n\n";
+			TraceAntiVirtual3 << "Anti-VMWare: SMSW Technique\n";
 		}
 	}
 
@@ -86,12 +90,14 @@ void detect(std::string thisItr){
 			shellTraceFile << "========================= Anti-VM: SLDT technique =========================\n";
 			shellTraceFile << prevInst << "\n";
 			shellTraceFile << thisItr << "\n\n";
+			TraceAntiVirtual3 << "Anti-VMWare: SLDT Technique\n";
 		}
 	}
 
 	if(thisItr.find("0F 01 4D F4") != thisItr.npos){
 		shellTraceFile << "========================= Anti-VM: SIDT/Redpill technique =========================\n";
 		shellTraceFile << thisItr << "\n\n";
+			TraceAntiVirtual3 << "Anti-VMWare: SIDT/Redpill Technique\n";
 	}
 
 	if(thisItr.find("81 FB 68 58 4D 56") != thisItr.npos){
@@ -100,15 +106,16 @@ void detect(std::string thisItr){
 			shellTraceFile << "========================= Anti-VM: IN technique =========================\n";
 			shellTraceFile << prevInst << "\n";
 			shellTraceFile << thisItr << "\n\n";
+			TraceAntiVirtual3 << "Anti-VMWare: IN Technique\n";
 		}
 	}
 
-	if(thisItr.find("RtlGetNtGlobalFlags") != thisItr.npos){
+	/*if(thisItr.find("RtlGetNtGlobalFlags") != thisItr.npos){
 		NTGlobalInstr = thisItr;
 		NTGlobalFlag = 1;
 	}
 
-	/*if(NTGlobalFlag && thisItr.find("8B 40 68") != thisItr.npos){
+	if(NTGlobalFlag && thisItr.find("8B 40 68") != thisItr.npos){
 		if(prevInst.find("8B 40 30") != prevInst.npos){
 			shellTraceFile << "========================= Anti-Debug: NtGlobalFlags technique =========================\n";
 			shellTraceFile << NTGlobalInstr << "\n";
@@ -169,6 +176,9 @@ VOID fini(INT32, VOID*)
 
 int mainShellCode()
 {
+	TraceAntiDebug3.open("logs\\antiDebug.out");
+	TraceAntiVirtual3.open("logs\\antiVirtual.out");
+	TraceAntiSandbox3.open("logs\\antiSandbox.out");
     traceFile.open(outputFile.Value().c_str());
     
     INS_AddInstrumentFunction(traceInst, 0);

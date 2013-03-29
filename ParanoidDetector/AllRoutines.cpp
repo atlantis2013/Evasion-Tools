@@ -65,6 +65,10 @@ namespace WINDOWS
 	}
 }
 std::ofstream TraceFile;
+std::ofstream TraceAntiDebug;
+std::ofstream TraceAntiVirtual;
+std::ofstream TraceAntiSandbox;
+
 bool switchDesktop = 0;
 bool setThreadDesktop = 0;
 bool isdebuggerpresent = 0;
@@ -93,6 +97,7 @@ VOID Routine(RTN rtn, VOID *v)
 bool isSeDebugCheck = 0;
 bool virtualdisk = 0;
 bool vm = 0;
+bool windowsProduct = 0;
 
 VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 {
@@ -116,10 +121,16 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 	transform(w.begin(), w.end(),w.begin(),towupper);
 	if(w.find(L"0") != w.npos || w.find(L"IDENTIFIER")!= w.npos){
 		if(virtualdisk == 0){
-			
-		TraceFile << "Anti-VM: Checking on virtual disk.\n";
-		virtualdisk =1 ;
+			TraceFile << "Anti-VM: Checking on virtual disk.\n";
+			TraceAntiVirtual << "Anti-Virtualization: Checking on virtual disk.\n";
+			virtualdisk =1 ;
 		}
+	}
+
+	if(w.find(L"PRODUCTID") != w.npos && windowsProduct == 0){
+		TraceFile << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
+		TraceAntiSandbox << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
+		windowsProduct = 1;
 	}
 }
 
@@ -128,8 +139,16 @@ VOID PrintArguments_Process(CHAR * name, ADDRINT arg0)
 {
 	if(WINDOWS::getProcessID("csrss.exe") == arg0 && isSeDebugCheck == 0){
 		TraceFile << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
+		TraceAntiDebug << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
 		isSeDebugCheck = 1;
 	}
+}
+
+VOID PrintArguments_FindWindow(CHAR * name, wchar_t * arg0)
+{
+	 wstring w = wstring(arg0);
+	 transform(w.begin(), w.end(),w.begin(),towupper);
+	 wcout << w << "\n";
 }
 VOID Image(IMG img, VOID *v)
 {
@@ -156,6 +175,19 @@ VOID Image(IMG img, VOID *v)
         IARG_ADDRINT, "RegQueryValueEx",
         IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
         IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+
+
+	cfwRtn = RTN_FindByName(img, "FindWindow");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_FindWindow,
+        IARG_ADDRINT, "FindWindow",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
         IARG_END);
         RTN_Close(cfwRtn);
     }
@@ -187,26 +219,27 @@ VOID RoutinesFini(INT32 code, VOID *v)
 		
 		if(rc->_name == "IsDebuggerPresent" && isdebuggerpresent == 0){
 			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
+			TraceAntiDebug<< "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
 			isdebuggerpresent = 1;
 		}
 
 		if(rc->_name == "CheckRemoteDebuggerPresent" && checkremote == 0){
 			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
+			TraceAntiDebug << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
 			checkremote = 1;
 		}
 
 		if(rc->_name == "SetUnhandledExceptionFilter" && SetUnhandledExceptionFilter == 0){
 			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
+			TraceAntiDebug<< "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
 			SetUnhandledExceptionFilter = 1;
 		}
 
 		if(rc->_name == "BlockInput" && blockInput == 0){
 			TraceFile << "Anti-Debugging: Executable attempts block input." << endl;
+			TraceAntiDebug<< "Anti-Debugging: Executable attempts block input." << endl;
 			blockInput = 1;
 		}
-
-
-
 		if(rc->_name == "SwitchDesktop"){
 			switchDesktop = 1;
 		}
@@ -217,6 +250,7 @@ VOID RoutinesFini(INT32 code, VOID *v)
 
 		if(switchDesktop == 1 && setThreadDesktop == 1){
 			TraceFile << "Anti-Debugging: Executable attempts to switch desktop.\n";
+			TraceAntiDebug << "Anti-Debugging: Executable attempts to switch desktop.\n";
 			switchDesktop = 0;
 			setThreadDesktop = 0;
 		}
@@ -231,6 +265,9 @@ VOID Fini(INT32 code, VOID *v)
 
 int mainRoutine()
 {
+	TraceAntiDebug.open("logs\\antiDebug.out");
+	TraceAntiVirtual.open("logs\\antiVirtual.out");
+	TraceAntiSandbox.open("logs\\antiSandbox.out");
 	TraceFile.open("logs\\functions.out");
     // Register Routine to be called to instrument rtn
     RTN_AddInstrumentFunction(Routine, 0);
