@@ -104,7 +104,7 @@ VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
     wstring w = wstring(arg1);
 	transform(w.begin(), w.end(),w.begin(),towupper);
 	//wcout << w << "\n";
-
+	wcout << w << "\n";
 	if( w.find(L"VMWARE") != w.npos || w.find(L"VMTOOLS") != w.npos || w.find(L"VM") != w.npos){
 		if(vm==0){
 			TraceFile << "Anti-VM: Checking for vm environment (VMWare, VMTools in registry)" << "\n";
@@ -119,9 +119,10 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 {
     wstring w = wstring(arg1);
 	transform(w.begin(), w.end(),w.begin(),towupper);
+	wcout << w << "\n";
 	if(w.find(L"0") != w.npos || w.find(L"IDENTIFIER")!= w.npos){
 		if(virtualdisk == 0){
-			TraceFile << "Anti-VM: Checking on virtual disk.\n";
+			TraceFile << "Anti-Virtualization: Checking on virtual disk.\n";
 			TraceAntiVirtual << "Anti-Virtualization: Checking on virtual disk.\n";
 			virtualdisk =1 ;
 		}
@@ -165,6 +166,45 @@ VOID Image(IMG img, VOID *v)
         IARG_END);
         RTN_Close(cfwRtn);
     }
+	cfwRtn = RTN_FindByName(img, "RegOpenKeyExA");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
+        IARG_ADDRINT, "RegOpenKeyExA",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+	cfwRtn = RTN_FindByName(img, "RegOpenKeyW");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
+        IARG_ADDRINT, "RegOpenKeyW",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+	cfwRtn = RTN_FindByName(img, "RegOpenKeyExW");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
+        IARG_ADDRINT, "RegOpenKeyExW",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
 
     cfwRtn = RTN_FindByName(img, "RegQueryValueExW");
     if (RTN_Valid(cfwRtn))
@@ -172,12 +212,40 @@ VOID Image(IMG img, VOID *v)
         RTN_Open(cfwRtn);
 
         RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegQueryKey,
-        IARG_ADDRINT, "RegQueryValueEx",
+        IARG_ADDRINT, "RegQueryValueExW",
         IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
         IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
         IARG_END);
         RTN_Close(cfwRtn);
     }
+
+	cfwRtn = RTN_FindByName(img, "RegQueryValueExA");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegQueryKey,
+        IARG_ADDRINT, "RegQueryValueExA",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+
+	cfwRtn = RTN_FindByName(img, "RegQueryValueW");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegQueryKey,
+        IARG_ADDRINT, "RegQueryValueW",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+
+
 
 
 	cfwRtn = RTN_FindByName(img, "FindWindow");
