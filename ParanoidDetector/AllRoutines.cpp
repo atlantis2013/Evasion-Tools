@@ -133,12 +133,12 @@ VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 
 VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 {
-    wstring w = wstring(arg1);
+    wstring w = L" " + wstring(arg1) + L" " ;
 	transform(w.begin(), w.end(),w.begin(),towupper);
 	//TraceRegistry.write((char*)arg1, wcslen(arg1) * sizeof(wchar_t));
 	TraceRegistry << arg1 << "\n";
 	wcout << w << "\n";
-	if(w.find(L"0") != w.npos || w.find(L"IDENTIFIER")!= w.npos){
+	if(w.find(L" 0 ") != w.npos || w.find(L" IDENTIFIER ")!= w.npos){
 		if(virtualdisk == 0){
 			//TraceFile << "Anti-Virtualization: Checking on virtual disk.\n";
 			TraceAntiVirtual << "Anti-Virtualization: Checking on virtual disk.\n";
@@ -146,7 +146,7 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 		}
 	}
 
-	if(w.find(L"PRODUCTID") != w.npos && windowsProduct == 0){
+	if(w.find(L" PRODUCTID ") != w.npos && windowsProduct == 0){
 		//TraceFile << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
 		TraceAntiSandbox << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
 		windowsProduct = 1;
