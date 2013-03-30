@@ -68,6 +68,7 @@ std::ofstream TraceFile;
 std::ofstream TraceAntiDebug;
 std::ofstream TraceAntiVirtual;
 std::ofstream TraceAntiSandbox;
+std::wofstream TraceRegistry;
 
 bool switchDesktop = 0;
 bool setThreadDesktop = 0;
@@ -97,17 +98,32 @@ VOID Routine(RTN rtn, VOID *v)
 bool isSeDebugCheck = 0;
 bool virtualdisk = 0;
 bool vm = 0;
+bool vbox = 0;
 bool windowsProduct = 0;
 
 VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 {
     wstring w = wstring(arg1);
 	transform(w.begin(), w.end(),w.begin(),towupper);
-	//wcout << w << "\n";
 	wcout << w << "\n";
+	//TraceRegistry.write((char*)arg1, wcslen(arg1) * sizeof(wchar_t));
+	TraceRegistry << arg1 << "\n";
+	if(w.find(L"VBOX") != w.npos && vbox == 0){
+		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
+		TraceAntiVirtual << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
+		vbox = 1;
+	}
+
+	if(w.find(L"VIRTUALBOX") != w.npos && vbox == 0){
+		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
+		TraceAntiVirtual << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
+		vbox = 1;
+	}
+
 	if( w.find(L"VMWARE") != w.npos || w.find(L"VMTOOLS") != w.npos || w.find(L"VM") != w.npos){
 		if(vm==0){
-			TraceFile << "Anti-VM: Checking for vm environment (VMWare, VMTools in registry)" << "\n";
+			//TraceFile << "Anti-VM: Checking for vm environment (VMWare, VMTools in registry)" << "\n";
+			TraceAntiVirtual << "Anti-VM: Checking for vm environment (VMWare, VMTools in registry)" << "\n";
 			vm = 1;
 		}
 	}
@@ -119,17 +135,19 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 {
     wstring w = wstring(arg1);
 	transform(w.begin(), w.end(),w.begin(),towupper);
+	//TraceRegistry.write((char*)arg1, wcslen(arg1) * sizeof(wchar_t));
+	TraceRegistry << arg1 << "\n";
 	wcout << w << "\n";
 	if(w.find(L"0") != w.npos || w.find(L"IDENTIFIER")!= w.npos){
 		if(virtualdisk == 0){
-			TraceFile << "Anti-Virtualization: Checking on virtual disk.\n";
+			//TraceFile << "Anti-Virtualization: Checking on virtual disk.\n";
 			TraceAntiVirtual << "Anti-Virtualization: Checking on virtual disk.\n";
 			virtualdisk =1 ;
 		}
 	}
 
 	if(w.find(L"PRODUCTID") != w.npos && windowsProduct == 0){
-		TraceFile << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
+		//TraceFile << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
 		TraceAntiSandbox << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
 		windowsProduct = 1;
 	}
@@ -139,7 +157,7 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 VOID PrintArguments_Process(CHAR * name, ADDRINT arg0)
 {
 	if(WINDOWS::getProcessID("csrss.exe") == arg0 && isSeDebugCheck == 0){
-		TraceFile << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
+		//TraceFile << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
 		TraceAntiDebug << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
 		isSeDebugCheck = 1;
 	}
@@ -150,6 +168,7 @@ VOID PrintArguments_FindWindow(CHAR * name, wchar_t * arg0)
 	 wstring w = wstring(arg0);
 	 transform(w.begin(), w.end(),w.begin(),towupper);
 	 wcout << w << "\n";
+	TraceFile << w.c_str() << "\n";
 }
 VOID Image(IMG img, VOID *v)
 {
@@ -166,45 +185,7 @@ VOID Image(IMG img, VOID *v)
         IARG_END);
         RTN_Close(cfwRtn);
     }
-	cfwRtn = RTN_FindByName(img, "RegOpenKeyExA");
-    if (RTN_Valid(cfwRtn))
-    {
-        RTN_Open(cfwRtn);
-
-        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
-        IARG_ADDRINT, "RegOpenKeyExA",
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
-        IARG_END);
-        RTN_Close(cfwRtn);
-    }
-	cfwRtn = RTN_FindByName(img, "RegOpenKeyW");
-    if (RTN_Valid(cfwRtn))
-    {
-        RTN_Open(cfwRtn);
-
-        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
-        IARG_ADDRINT, "RegOpenKeyW",
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
-        IARG_END);
-        RTN_Close(cfwRtn);
-    }
-	cfwRtn = RTN_FindByName(img, "RegOpenKeyExW");
-    if (RTN_Valid(cfwRtn))
-    {
-        RTN_Open(cfwRtn);
-
-        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
-        IARG_ADDRINT, "RegOpenKeyExW",
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
-        IARG_END);
-        RTN_Close(cfwRtn);
-    }
+	
 
     cfwRtn = RTN_FindByName(img, "RegQueryValueExW");
     if (RTN_Valid(cfwRtn))
@@ -219,35 +200,8 @@ VOID Image(IMG img, VOID *v)
         RTN_Close(cfwRtn);
     }
 
-	cfwRtn = RTN_FindByName(img, "RegQueryValueExA");
-    if (RTN_Valid(cfwRtn))
-    {
-        RTN_Open(cfwRtn);
-
-        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegQueryKey,
-        IARG_ADDRINT, "RegQueryValueExA",
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
-        IARG_END);
-        RTN_Close(cfwRtn);
-    }
-
-	cfwRtn = RTN_FindByName(img, "RegQueryValueW");
-    if (RTN_Valid(cfwRtn))
-    {
-        RTN_Open(cfwRtn);
-
-        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegQueryKey,
-        IARG_ADDRINT, "RegQueryValueW",
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
-        IARG_END);
-        RTN_Close(cfwRtn);
-    }
-
-
-
-
+	
+	/*
 	cfwRtn = RTN_FindByName(img, "FindWindow");
     if (RTN_Valid(cfwRtn))
     {
@@ -258,7 +212,7 @@ VOID Image(IMG img, VOID *v)
         IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
         IARG_END);
         RTN_Close(cfwRtn);
-    }
+    }*/
 
 	/* checks for SeDebug*/
 	cfwRtn = RTN_FindByName(img, "OpenProcess");
@@ -279,32 +233,32 @@ VOID Image(IMG img, VOID *v)
 VOID RoutinesFini(INT32 code, VOID *v)
 {
 	ofstream outFile, outFile2;
-	outFile2.open("logs\\allFunctions.out", ios::app|ios::out);
+	//outFile2.open("logs\\allFunctions.out", ios::app|ios::out);
 		
     for (RTNNAME * rc = RtnList; rc; rc = rc->_next)
     {
-		outFile2 << rc->_name << endl;
+		//outFile2 << rc->_name << endl;
 		
 		if(rc->_name == "IsDebuggerPresent" && isdebuggerpresent == 0){
-			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
+			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
 			TraceAntiDebug<< "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
 			isdebuggerpresent = 1;
 		}
 
 		if(rc->_name == "CheckRemoteDebuggerPresent" && checkremote == 0){
-			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
+			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
 			TraceAntiDebug << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
 			checkremote = 1;
 		}
 
 		if(rc->_name == "SetUnhandledExceptionFilter" && SetUnhandledExceptionFilter == 0){
-			TraceFile << "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
+			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
 			TraceAntiDebug<< "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
 			SetUnhandledExceptionFilter = 1;
 		}
 
 		if(rc->_name == "BlockInput" && blockInput == 0){
-			TraceFile << "Anti-Debugging: Executable attempts block input." << endl;
+			//TraceFile << "Anti-Debugging: Executable attempts block input." << endl;
 			TraceAntiDebug<< "Anti-Debugging: Executable attempts block input." << endl;
 			blockInput = 1;
 		}
@@ -317,7 +271,7 @@ VOID RoutinesFini(INT32 code, VOID *v)
 		}
 
 		if(switchDesktop == 1 && setThreadDesktop == 1){
-			TraceFile << "Anti-Debugging: Executable attempts to switch desktop.\n";
+			//TraceFile << "Anti-Debugging: Executable attempts to switch desktop.\n";
 			TraceAntiDebug << "Anti-Debugging: Executable attempts to switch desktop.\n";
 			switchDesktop = 0;
 			setThreadDesktop = 0;
@@ -336,7 +290,8 @@ int mainRoutine()
 	TraceAntiDebug.open("logs\\antiDebug.out");
 	TraceAntiVirtual.open("logs\\antiVirtual.out");
 	TraceAntiSandbox.open("logs\\antiSandbox.out");
-	TraceFile.open("logs\\functions.out");
+	TraceRegistry.open("logs\\registry.out");
+	//TraceFile.open("logs\\functions.out");
     // Register Routine to be called to instrument rtn
     RTN_AddInstrumentFunction(Routine, 0);
     PIN_AddFiniFunction(RoutinesFini, 0);

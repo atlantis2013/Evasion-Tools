@@ -10,7 +10,7 @@ std::list<std::string> legitInstructions;
 std::set<std::string*> dumped;
 std::ofstream traceFile;
 KNOB<string> outputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "logs\\allShellcode.out", "specify trace file name");
-ofstream shellTraceFile("logs\\shellCode.out");
+//ofstream shellTraceFile("logs\\shellCode.out");
 
 std::string prevInst;
 
@@ -73,39 +73,58 @@ std::string dumpInstruction(INS ins)
 *
 */
 void detect(std::string thisItr){
+	// Anti-VirtualPC, if eax is invalid
+	if(thisItr.find("ret") != thisItr.npos){
+		if(prevInst.find("mov eax, 1") != prevInst.npos){
+			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			TraceAntiVirtual3 << "Anti-VirtualPC: Invalid Technique\n";
+		}
+	}
+	if(thisItr.find("0f3f070b") != thisItr.npos){
+		//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
+		//shellTraceFile << prevInst << "\n";
+		TraceAntiVirtual3 << "Anti-VirtualPC: Invalid Technique\n";
+	}
+
+	if(thisItr.find("0f3f070b") != thisItr.npos){
+		if(prevInst.find("mov eax, 1") != prevInst.npos){
+			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			TraceAntiVirtual3 << "Anti-VirtualPC: Invalid Technique\n";
+		}
+	}
+
 	// Anti-VM
 	if(thisItr.find("0F 01 E0") != thisItr.npos){
-		shellTraceFile << "SMSW\n";
 		if(prevInst.find("B8 CC CC CC CC") != prevInst.npos){
-			shellTraceFile << "========================= Anti-VM: SMSW technique =========================\n";
-			shellTraceFile << prevInst << "\n";
-			shellTraceFile << thisItr << "\n\n";
+			//shellTraceFile << "========================= Anti-VM: SMSW technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			//shellTraceFile << thisItr << "\n\n";
 			TraceAntiVirtual3 << "Anti-VMWare: SMSW Technique\n";
 		}
 	}
 
-	if(thisItr.find("81 7D F4 00 00 AD DE") != thisItr.npos){
-		shellTraceFile << "SLDT\n";
-		if(prevInst.find("0F 00 45 F4") != prevInst.npos){
-			shellTraceFile << "========================= Anti-VM: SLDT technique =========================\n";
-			shellTraceFile << prevInst << "\n";
-			shellTraceFile << thisItr << "\n\n";
+	if(thisItr.find("0xdead0000") != thisItr.npos){
+		if(prevInst.find("sldt") != prevInst.npos){
+			//shellTraceFile << "========================= Anti-VM: SLDT technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			//shellTraceFile << thisItr << "\n\n";
 			TraceAntiVirtual3 << "Anti-VMWare: SLDT Technique\n";
 		}
 	}
 
-	if(thisItr.find("0F 01 4D F4") != thisItr.npos){
-		shellTraceFile << "========================= Anti-VM: SIDT/Redpill technique =========================\n";
-		shellTraceFile << thisItr << "\n\n";
+	if(thisItr.find("sidt") != thisItr.npos){
+			//shellTraceFile << "========================= Anti-VM: SIDT/Redpill technique =========================\n";
+			//shellTraceFile << thisItr << "\n\n";
 			TraceAntiVirtual3 << "Anti-VMWare: SIDT/Redpill Technique\n";
 	}
 
-	if(thisItr.find("81 FB 68 58 4D 56") != thisItr.npos){
-		shellTraceFile << "IN\n";
-		if(prevInst.find("ED") != prevInst.npos){
-			shellTraceFile << "========================= Anti-VM: IN technique =========================\n";
-			shellTraceFile << prevInst << "\n";
-			shellTraceFile << thisItr << "\n\n";
+	if(thisItr.find("0x564d5868") != thisItr.npos){
+		if(prevInst.find("in eax") != prevInst.npos){
+			//shellTraceFile << "========================= Anti-VM: IN technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			//shellTraceFile << thisItr << "\n\n";
 			TraceAntiVirtual3 << "Anti-VMWare: IN Technique\n";
 		}
 	}
@@ -171,7 +190,7 @@ void traceInst(INS ins, VOID*)
 VOID fini(INT32, VOID*)
 {
     traceFile.close();
-	shellTraceFile.close();
+	//shellTraceFile.close();
 }
 
 int mainShellCode()
@@ -179,7 +198,7 @@ int mainShellCode()
 	TraceAntiDebug3.open("logs\\antiDebug.out");
 	TraceAntiVirtual3.open("logs\\antiVirtual.out");
 	TraceAntiSandbox3.open("logs\\antiSandbox.out");
-    traceFile.open(outputFile.Value().c_str());
+    //traceFile.open(outputFile.Value().c_str());
     
     INS_AddInstrumentFunction(traceInst, 0);
     PIN_AddFiniFunction(fini, 0);

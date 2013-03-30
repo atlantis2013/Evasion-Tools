@@ -7,8 +7,8 @@
 */
 
 #include "SystemCall.h"
-ofstream traceFile2("logs\\system.out");
-ofstream traceFileAll("logs\\allSystem.out");
+//ofstream traceFile2("logs\\system.out");
+//ofstream traceFileAll("logs\\allSystem.out");
 std::ofstream TraceAntiDebug2("logs\\antiDebug.out");
 std::ofstream TraceAntiVirtual2("logs\\antiVirtual.out");
 std::ofstream TraceAntiSandbox2("logs\\antiSandbox.out");
@@ -22,22 +22,22 @@ void syscall_entry(THREADID thread_id, CONTEXT *ctx,
 {
 	// check for Certain System Call
 	if(PIN_GetSyscallNumber(ctx,std) == 154 && PIN_GetSyscallArgument(ctx, std, 1) == 7){
-		traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 7 -> Anti-Debugging: Executable is checking for ProcessDebugPort\n";
+		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 7 -> Anti-Debugging: Executable is checking for ProcessDebugPort\n";
 		TraceAntiDebug2 << "Anti-Debugging: 	Executable is checking for ProcessDebugPort\n";
 	}
 
 	if(PIN_GetSyscallNumber(ctx,std) == 229 &&  PIN_GetSyscallArgument(ctx, std, 1) == 17){
-		traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 0x11 -> Anti-Debugging: Executable attempts to detach debugger.\n";
+		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 0x11 -> Anti-Debugging: Executable attempts to detach debugger.\n";
 		TraceAntiDebug2 << "Anti-Debugging: Executable attempts to detach debugger.\n";
 	}
 
 	if(PIN_GetSyscallNumber(ctx,std) == 173 && PIN_GetSyscallArgument(ctx, std, 0) == 35){
-		traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " 0x35 -> Anti-Debugging: Executable is checking for SystemKernelDebuggerInformation\n";
+		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " 0x35 -> Anti-Debugging: Executable is checking for SystemKernelDebuggerInformation\n";
 		TraceAntiDebug2 << "Anti-Debugging: Executable is checking for SystemKernelDebuggerInformation\n";
 	}
 
 
-    traceFileAll << PIN_GetSyscallNumber(ctx, std) << "\n";
+    //traceFileAll << PIN_GetSyscallNumber(ctx, std) << "\n";
     /*for (int i = 0; i < 4; i++) {
         ADDRINT value = PIN_GetSyscallArgument(ctx, std, i);
         printf("  %d 0x%08x", value, value);
