@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyPinTool", "MyPinTool.vcxproj", "{639EF517-FCFC-408E-9500-71F0DC0458DB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PinTool", "MyPinTool.vcxproj", "{639EF517-FCFC-408E-9500-71F0DC0458DB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenerateReport", "GenerateReport\GenerateReport.vcxproj", "{E4831133-389A-462C-82E6-A6130DB0E3FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +21,12 @@ Global
 		{639EF517-FCFC-408E-9500-71F0DC0458DB}.Release|Win32.Build.0 = Release|Win32
 		{639EF517-FCFC-408E-9500-71F0DC0458DB}.Release|x64.ActiveCfg = Release|x64
 		{639EF517-FCFC-408E-9500-71F0DC0458DB}.Release|x64.Build.0 = Release|x64
+		{E4831133-389A-462C-82E6-A6130DB0E3FC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E4831133-389A-462C-82E6-A6130DB0E3FC}.Debug|Win32.Build.0 = Debug|Win32
+		{E4831133-389A-462C-82E6-A6130DB0E3FC}.Debug|x64.ActiveCfg = Debug|Win32
+		{E4831133-389A-462C-82E6-A6130DB0E3FC}.Release|Win32.ActiveCfg = Release|Win32
+		{E4831133-389A-462C-82E6-A6130DB0E3FC}.Release|Win32.Build.0 = Release|Win32
+		{E4831133-389A-462C-82E6-A6130DB0E3FC}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

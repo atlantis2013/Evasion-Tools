@@ -78,20 +78,20 @@ void detect(std::string thisItr){
 		if(prevInst.find("mov eax, 1") != prevInst.npos){
 			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
 			//shellTraceFile << prevInst << "\n";
-			TraceAntiVirtual3 << "Anti-VirtualPC: Invalid Technique\n";
+			TraceAntiVirtual3 << "Anti-VirtualPC:	Invalid Technique\n";
 		}
 	}
 	if(thisItr.find("0f3f070b") != thisItr.npos){
 		//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
 		//shellTraceFile << prevInst << "\n";
-		TraceAntiVirtual3 << "Anti-VirtualPC: Invalid Technique\n";
+		TraceAntiVirtual3 << "Anti-VirtualPC:	Invalid Technique\n";
 	}
 
 	if(thisItr.find("0f3f070b") != thisItr.npos){
 		if(prevInst.find("mov eax, 1") != prevInst.npos){
 			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
 			//shellTraceFile << prevInst << "\n";
-			TraceAntiVirtual3 << "Anti-VirtualPC: Invalid Technique\n";
+			TraceAntiVirtual3 << "Anti-VirtualPC:		Invalid Technique\n";
 		}
 	}
 
@@ -101,7 +101,7 @@ void detect(std::string thisItr){
 			//shellTraceFile << "========================= Anti-VM: SMSW technique =========================\n";
 			//shellTraceFile << prevInst << "\n";
 			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare: SMSW Technique\n";
+			TraceAntiVirtual3 << "Anti-VMWare:		SMSW Technique\n";
 		}
 	}
 
@@ -110,14 +110,14 @@ void detect(std::string thisItr){
 			//shellTraceFile << "========================= Anti-VM: SLDT technique =========================\n";
 			//shellTraceFile << prevInst << "\n";
 			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare: SLDT Technique\n";
+			TraceAntiVirtual3 << "Anti-VMWare:		SLDT Technique\n";
 		}
 	}
 
 	if(thisItr.find("sidt") != thisItr.npos){
 			//shellTraceFile << "========================= Anti-VM: SIDT/Redpill technique =========================\n";
 			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare: SIDT/Redpill Technique\n";
+			TraceAntiVirtual3 << "Anti-VMWare:		SIDT/Redpill Technique\n";
 	}
 
 	if(thisItr.find("0x564d5868") != thisItr.npos){
@@ -125,32 +125,9 @@ void detect(std::string thisItr){
 			//shellTraceFile << "========================= Anti-VM: IN technique =========================\n";
 			//shellTraceFile << prevInst << "\n";
 			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare: IN Technique\n";
+			TraceAntiVirtual3 << "Anti-VMWare:		IN Technique\n";
 		}
 	}
-
-	/*if(thisItr.find("RtlGetNtGlobalFlags") != thisItr.npos){
-		NTGlobalInstr = thisItr;
-		NTGlobalFlag = 1;
-	}
-
-	if(NTGlobalFlag && thisItr.find("8B 40 68") != thisItr.npos){
-		if(prevInst.find("8B 40 30") != prevInst.npos){
-			shellTraceFile << "========================= Anti-Debug: NtGlobalFlags technique =========================\n";
-			shellTraceFile << NTGlobalInstr << "\n";
-			shellTraceFile << prevInst << "\n";
-			shellTraceFile << thisItr << "\n\n";
-		}
-	}
-
-	if(thisItr.find("83 78 10") != thisItr.npos){
-		if(prevInst.find("8B 40 10") != prevInst.npos){
-			shellTraceFile << "========================= Anti-Debug:  HeapFlag technique =========================\n";
-			shellTraceFile << prevInst << "\n";
-			shellTraceFile << thisItr << "\n\n";
-		}
-	}*/
-	// Anti-Debugging
 }
 
 void dump_shellcode(std::string* instructionString)
@@ -187,21 +164,23 @@ void traceInst(INS ins, VOID*)
 	}
 }
 
+
+
 VOID fini(INT32, VOID*)
 {
     traceFile.close();
 	//shellTraceFile.close();
+	//generateReport();
 }
 
 int mainShellCode()
 {
-	TraceAntiDebug3.open("logs\\antiDebug.out");
-	TraceAntiVirtual3.open("logs\\antiVirtual.out");
-	TraceAntiSandbox3.open("logs\\antiSandbox.out");
+	TraceAntiDebug3.open("logs\\shellCode.out");
+	TraceAntiVirtual3.open("logs\\shellCode.out");
+	TraceAntiSandbox3.open("logs\\shellCode.out");
     //traceFile.open(outputFile.Value().c_str());
     
     INS_AddInstrumentFunction(traceInst, 0);
     PIN_AddFiniFunction(fini, 0);
-
     return 0;
 }
