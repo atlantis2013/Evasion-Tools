@@ -9,31 +9,32 @@
 #include "SystemCall.h"
 //ofstream traceFile2("logs\\system.out");
 //ofstream traceFileAll("logs\\allSystem.out");
-std::ofstream TraceAntiDebug2("logs\\system.out");
-std::ofstream TraceAntiVirtual2("logs\\system.out");
-std::ofstream TraceAntiSandbox2("logs\\system.out");
+std::ofstream TraceAntiDebug2("logs\\antidebug_system.out");
+std::ofstream TraceAntiVirtual2("logs\\antivirtual_system.out");
+std::ofstream TraceAntiSandbox2("logs\\antisandbox_system.out");
 
 void setTraceFile(string file){
 	//traceFile2.open(file);
 }
-
+bool processdebug = 0;
 void syscall_entry(THREADID thread_id, CONTEXT *ctx,
     SYSCALL_STANDARD std, void *v)
 {
 	// check for Certain System Call
-	if(PIN_GetSyscallNumber(ctx,std) == 154 && PIN_GetSyscallArgument(ctx, std, 1) == 7){
+	if(processdebug ==0 && PIN_GetSyscallNumber(ctx,std) == 154 && PIN_GetSyscallArgument(ctx, std, 1) == 7){
 		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 7 -> Anti-Debugging: Executable is checking for ProcessDebugPort\n";
-		TraceAntiDebug2 << "Anti-Debugging:			Executable is checking for ProcessDebugPort\n";
+		TraceAntiDebug2 << "Anti-Debugging:		Executable is checking for ProcessDebugPort\n";
+		processdebug = 1;
 	}
 
 	if(PIN_GetSyscallNumber(ctx,std) == 229 &&  PIN_GetSyscallArgument(ctx, std, 1) == 17){
 		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 0x11 -> Anti-Debugging: Executable attempts to detach debugger.\n";
-		TraceAntiDebug2 << "Anti-Debugging:			Executable attempts to detach debugger.\n";
+		TraceAntiDebug2 << "Anti-Debugging:		Executable attempts to detach debugger.\n";
 	}
 
 	if(PIN_GetSyscallNumber(ctx,std) == 173 && PIN_GetSyscallArgument(ctx, std, 0) == 35){
 		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " 0x35 -> Anti-Debugging: Executable is checking for SystemKernelDebuggerInformation\n";
-		TraceAntiDebug2 << "Anti-Debugging:			Executable is checking for SystemKernelDebuggerInformation\n";
+		TraceAntiDebug2 << "Anti-Debugging:		Executable is checking for SystemKernelDebuggerInformation\n";
 	}
 }
 

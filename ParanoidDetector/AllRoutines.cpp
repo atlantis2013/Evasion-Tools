@@ -241,13 +241,13 @@ VOID RoutinesFini(INT32 code, VOID *v)
 		
 		if(rc->_name == "IsDebuggerPresent" && isdebuggerpresent == 0){
 			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
-			TraceAntiDebug<< "Anti-Debugging:	Executable attempts to check for debugger via isDebuggerPresent " << endl;
+			TraceAntiDebug<< "Anti-Debugging:		Executable attempts to check for debugger via isDebuggerPresent " << endl;
 			isdebuggerpresent = 1;
 		}
 
 		if(rc->_name == "CheckRemoteDebuggerPresent" && checkremote == 0){
 			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
-			TraceAntiDebug << "Anti_DeAnti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
+			TraceAntiDebug << "Anti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
 			checkremote = 1;
 		}
 
@@ -287,9 +287,9 @@ VOID Fini(INT32 code, VOID *v)
 
 int mainRoutine()
 {
-	TraceAntiDebug.open("logs\\routines.out");
-	TraceAntiVirtual.open("logs\\routines.out");
-	TraceAntiSandbox.open("logs\\routines.out");
+	TraceAntiDebug.open("logs\\antidebug_routines.out");
+	TraceAntiVirtual.open("logs\\antivirtual_routines.out");
+	TraceAntiSandbox.open("logs\\antisandbox_routines.out");
 	TraceRegistry.open("logs\\registry.out");
 	//TraceFile.open("logs\\functions.out");
     // Register Routine to be called to instrument rtn

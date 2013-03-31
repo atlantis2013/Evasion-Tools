@@ -175,9 +175,9 @@ VOID fini(INT32, VOID*)
 
 int mainShellCode()
 {
-	TraceAntiDebug3.open("logs\\shellCode.out");
-	TraceAntiVirtual3.open("logs\\shellCode.out");
-	TraceAntiSandbox3.open("logs\\shellCode.out");
+	TraceAntiDebug3.open("logs\\antidebug_shellCode.out");
+	TraceAntiVirtual3.open("logs\\antivirtual_shellCode.out");
+	TraceAntiSandbox3.open("logs\\antisandbox_shellCode.out");
     //traceFile.open(outputFile.Value().c_str());
     
     INS_AddInstrumentFunction(traceInst, 0);
