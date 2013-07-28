@@ -10,7 +10,7 @@ std::list<std::string> legitInstructions;
 std::set<std::string*> dumped;
 std::ofstream traceFile;
 KNOB<string> outputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "logs\\allShellcode.out", "specify trace file name");
-//ofstream shellTraceFile("logs\\shellCode.out");
+ofstream shellTraceFile("logs\\shellCode.out");
 
 std::string prevInst;
 
@@ -36,6 +36,56 @@ bool isUnknownAddress(ADDRINT address)
 
 	return true;
 }
+/*
+*	Detect what we want to detect and write to our file
+*
+*/
+void detect(std::string thisItr){
+	// Anti-VirtualPC, if eax is invalid
+	if(thisItr.find("ret") != thisItr.npos){
+		if(prevInst.find("mov eax, 1") != prevInst.npos){
+			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			TraceAntiVirtual3 << "Anti-VirtualBox:	ret/mov eax, 1 detected. Detected Invalid Technique\n";
+		}
+	}
+
+	if(thisItr.find("0f3f070b") != thisItr.npos){
+		if(prevInst.find("mov eax, 1") != prevInst.npos){
+			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			TraceAntiVirtual3 << "Anti-VirtualPC:		0f3f070b spotted. Detected Invalid Instruction Technique\n";
+		}
+	}
+
+	// Anti-VM
+	if(thisItr.find("0F 01 E0") != thisItr.npos){
+		if(prevInst.find("B8 CC CC CC CC") != prevInst.npos){
+			//shellTraceFile << "========================= Anti-VM: SMSW technique =========================\n";
+			//shellTraceFile << prevInst << "\n";
+			//shellTraceFile << thisItr << "\n\n";
+			TraceAntiVirtual3 << "Anti-VMWare:		smsw eax spotted. Detected the SMSW Technique\n";
+		}
+	}
+
+	if(thisItr.find("0xdead0000") != thisItr.npos){
+		if(prevInst.find("sldt") != prevInst.npos){
+			TraceAntiVirtual3 << "Anti-VMWare:		0xdead0000 spotted. Detected the SLDT Technique\n";
+		}
+	}
+
+	if(thisItr.find("sidt") != thisItr.npos){
+			TraceAntiVirtual3 << "Anti-VMWare:		SIDT spotted. Detected the SIDT/Redpill Technique\n";
+	}
+
+	if(thisItr.find("0x564d5868") != thisItr.npos){
+		//TraceAntiVirtual3 << prevInst << endl;
+		if(prevInst.find("in eax") != prevInst.npos){
+			TraceAntiVirtual3 << "Anti-VMWare:		0x564d5868 spotted. Detected the IN Technique\n";
+		}
+	}
+}
+
 std::string dumpInstruction(INS ins)
 {
 		std::stringstream ss;
@@ -65,70 +115,14 @@ std::string dumpInstruction(INS ins)
 			ss << " -> " << RTN_FindNameByAddress(INS_DirectBranchOrCallTargetAddress(ins));
 		}
 
+		// write all shellcode to one file
+		shellTraceFile << ss.str() << endl;
+
+		// we should do the detection here.
+		//detect(ss.str());
 		return ss.str();
 }
 
-/*
-*	Detect what we want to detect and write to our file
-*
-*/
-void detect(std::string thisItr){
-	// Anti-VirtualPC, if eax is invalid
-	if(thisItr.find("ret") != thisItr.npos){
-		if(prevInst.find("mov eax, 1") != prevInst.npos){
-			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
-			//shellTraceFile << prevInst << "\n";
-			TraceAntiVirtual3 << "Anti-VirtualPC:	Invalid Technique\n";
-		}
-	}
-	if(thisItr.find("0f3f070b") != thisItr.npos){
-		//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
-		//shellTraceFile << prevInst << "\n";
-		TraceAntiVirtual3 << "Anti-VirtualPC:	Invalid Technique\n";
-	}
-
-	if(thisItr.find("0f3f070b") != thisItr.npos){
-		if(prevInst.find("mov eax, 1") != prevInst.npos){
-			//shellTraceFile << "========================= Anti-VirtualBox: Invalid Instruction technique =========================\n";
-			//shellTraceFile << prevInst << "\n";
-			TraceAntiVirtual3 << "Anti-VirtualPC:		Invalid Technique\n";
-		}
-	}
-
-	// Anti-VM
-	if(thisItr.find("0F 01 E0") != thisItr.npos){
-		if(prevInst.find("B8 CC CC CC CC") != prevInst.npos){
-			//shellTraceFile << "========================= Anti-VM: SMSW technique =========================\n";
-			//shellTraceFile << prevInst << "\n";
-			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare:		SMSW Technique\n";
-		}
-	}
-
-	if(thisItr.find("0xdead0000") != thisItr.npos){
-		if(prevInst.find("sldt") != prevInst.npos){
-			//shellTraceFile << "========================= Anti-VM: SLDT technique =========================\n";
-			//shellTraceFile << prevInst << "\n";
-			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare:		SLDT Technique\n";
-		}
-	}
-
-	if(thisItr.find("sidt") != thisItr.npos){
-			//shellTraceFile << "========================= Anti-VM: SIDT/Redpill technique =========================\n";
-			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare:		SIDT/Redpill Technique\n";
-	}
-
-	if(thisItr.find("0x564d5868") != thisItr.npos){
-		if(prevInst.find("in eax") != prevInst.npos){
-			//shellTraceFile << "========================= Anti-VM: IN technique =========================\n";
-			//shellTraceFile << prevInst << "\n";
-			//shellTraceFile << thisItr << "\n\n";
-			TraceAntiVirtual3 << "Anti-VMWare:		IN Technique\n";
-		}
-	}
-}
 
 void dump_shellcode(std::string* instructionString)
 {

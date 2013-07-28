@@ -23,18 +23,18 @@ void syscall_entry(THREADID thread_id, CONTEXT *ctx,
 	// check for Certain System Call
 	if(processdebug ==0 && PIN_GetSyscallNumber(ctx,std) == 154 && PIN_GetSyscallArgument(ctx, std, 1) == 7){
 		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 7 -> Anti-Debugging: Executable is checking for ProcessDebugPort\n";
-		TraceAntiDebug2 << "Anti-Debugging:		Executable is checking for ProcessDebugPort\n";
+		TraceAntiDebug2 << "Anti-Debugging:		System Call 154 called. Argument 1 = 7. Executable is checking for ProcessDebugPort\n";
 		processdebug = 1;
 	}
 
 	if(PIN_GetSyscallNumber(ctx,std) == 229 &&  PIN_GetSyscallArgument(ctx, std, 1) == 17){
 		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 0x11 -> Anti-Debugging: Executable attempts to detach debugger.\n";
-		TraceAntiDebug2 << "Anti-Debugging:		Executable attempts to detach debugger.\n";
+		TraceAntiDebug2 << "Anti-Debugging:		System Call 229 called. Argument 1 = 17. Executable attempts to detach debugger.\n";
 	}
 
 	if(PIN_GetSyscallNumber(ctx,std) == 173 && PIN_GetSyscallArgument(ctx, std, 0) == 35){
 		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " 0x35 -> Anti-Debugging: Executable is checking for SystemKernelDebuggerInformation\n";
-		TraceAntiDebug2 << "Anti-Debugging:		Executable is checking for SystemKernelDebuggerInformation\n";
+		TraceAntiDebug2 << "Anti-Debugging:		System call 173 called. Argument 0 = 35. Executable is checking for SystemKernelDebuggerInformation\n";
 	}
 }
 

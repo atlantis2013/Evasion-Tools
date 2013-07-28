@@ -1,0 +1,24 @@
+Anti-VMWare:		SIDT/Redpill Technique
+Anti-VMWare:		SIDT/Redpill Technique
+
+
+Anti-VMWare:		Checking for vm environment (VMWare, VMTools in registry)
+Anti-Virtualization:	Checking on virtual disk.
+Anti-VirtualBox:		Checking for Vbox environment
+
+
+Anti-Sandbox:		Checking on Windows Operating system's product ID
+
+
+Anti-Debugging:		Executable is checking for ProcessDebugPort
+Anti-Debugging:		Executable is checking for SystemKernelDebuggerInformation
+Anti-Debugging:		Executable attempts to detach debugger.
+
+Anti-Debugging:		Executable enables SeDebugPrivilege.
+Anti-Debugging:		Executable attempts block input.
+Anti-Debugging:		Executable attempts to switch desktop.
+Anti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent 
+Anti-Debugging:		Executable attempts to check for debugger via SetUnhandledExceptionFilter 
+Anti-Debugging:		Executable attempts to check for debugger via isDebuggerPresent 
+
+

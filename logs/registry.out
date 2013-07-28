@@ -7,9 +7,6 @@ EnableBalloonTips
 Software\Microsoft\Windows NT\CurrentVersion\LanguagePack
 Control Panel\Desktop
 SmoothScroll
-Software\Microsoft\Rpc\PagedBuffers
-Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ParanoidMalware.exe\RpcThreadPoolThrottle
-Software\Policies\Microsoft\Windows NT\Rpc
 SOFTWARE\VMWare\VMTools
 SOFTWARE\VMWare, Inc.\VMware Tools
 SYSTEM\CurrentControlSet\Services\vmci

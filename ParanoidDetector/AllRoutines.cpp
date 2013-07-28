@@ -110,13 +110,13 @@ VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 	TraceRegistry << arg1 << "\n";
 	if(w.find(L"VBOX") != w.npos && vbox == 0){
 		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
-		TraceAntiVirtual << "Anti-VirtualBox:		Checking for Vbox environment" << "\n";
+		TraceAntiVirtual << "Anti-VirtualBox:		Checking for Vbox environment in registry." << "\n";
 		vbox = 1;
 	}
 
 	if(w.find(L"VIRTUALBOX") != w.npos && vbox == 0){
 		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
-		TraceAntiVirtual << "Anti-VirtualBox:		Checking for Vbox environment" << "\n";
+		TraceAntiVirtual << "Anti-VirtualBox:		Checking for Vbox environment in registry." << "\n";
 		vbox = 1;
 	}
 
@@ -128,6 +128,9 @@ VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 		}
 	}
 
+	if( w.find(L"VideoBios") != w.npos){
+		TraceAntiVirtual << "Anti-VM:	Checking for VMs enironment in registry via VideoBiosSystem" << "\n";
+	}
 
 }
 
@@ -141,16 +144,21 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 	if(w.find(L" 0 ") != w.npos || w.find(L" IDENTIFIER ")!= w.npos){
 		if(virtualdisk == 0){
 			//TraceFile << "Anti-Virtualization: Checking on virtual disk.\n";
-			TraceAntiVirtual << "Anti-Virtualization:	Checking on virtual disk.\n";
+			TraceAntiVirtual << "Anti-Virtualization:	Checking on virtual disk in registry.\n";
 			virtualdisk =1 ;
 		}
 	}
 
 	if(w.find(L" PRODUCTID ") != w.npos && windowsProduct == 0){
 		//TraceFile << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
-		TraceAntiSandbox << "Anti-Sandbox:		Checking on Windows Operating system's product ID\n";
+		TraceAntiSandbox << "Anti-Sandbox:		Checking on Windows Operating system's product ID in registry\n";
 		windowsProduct = 1;
 	}
+
+	if( w.find(L"VideoBios") != w.npos){
+		TraceAntiVirtual << "Anti-VM:	Checking for VMs enironment in registry via VideoBiosSystem" << "\n";
+	}
+
 }
 
 
@@ -158,7 +166,7 @@ VOID PrintArguments_Process(CHAR * name, ADDRINT arg0)
 {
 	if(WINDOWS::getProcessID("csrss.exe") == arg0 && isSeDebugCheck == 0){
 		//TraceFile << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
-		TraceAntiDebug << "Anti-Debugging:		Executable enables SeDebugPrivilege." << endl;
+		TraceAntiDebug << "Anti-Debugging:		Executable enables SeDebugPrivilege as csrss.exe's SeDebugCheck is 0." << endl;
 		isSeDebugCheck = 1;
 	}
 }
