@@ -86,7 +86,7 @@ void detect(std::string thisItr){
 
 std::string dumpInstruction(INS ins)
 {
-		std::stringstream ss;
+		std::stringstream ss, instss;
 
 		ADDRINT address = INS_Address(ins);
 
@@ -106,6 +106,9 @@ std::string dumpInstruction(INS ins)
 
 		// Generate diassembled string
 		ss << INS_Disassemble(ins);
+		instss << INS_Disassemble(ins);
+
+		
 
 		// Look up call information for direct calls
 		if (INS_IsCall(ins) && INS_IsDirectBranchOrCall(ins))
@@ -138,10 +141,17 @@ void dump_shellcode(std::string* instructionString)
 	}
 }
 
+//intercept the memory addr, patch the return value
+void killSLDT(ADDRINT memIp) {
+ char *data = (char *)memIp;
+ unsigned int* m = (unsigned int *)(data);
+ *m = 0xdead0000;
+}
 
 void traceInst(INS ins, VOID*)
 {
 	ADDRINT address = INS_Address(ins);
+	std::stringstream ss;
 
 	if (isUnknownAddress(address))
 	{
@@ -152,7 +162,15 @@ void traceInst(INS ins, VOID*)
 	else
 	{
 		legitInstructions.push_back(dumpInstruction(ins));
+		
+		// poisoning 
+		string ss = INS_Disassemble(ins);
+		if(ss.substr(0,4) == "sldt"){
+			INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)killSLDT, IARG_MEMORYWRITE_EA, IARG_END);
+		}
 	}
+
+
 }
 
 

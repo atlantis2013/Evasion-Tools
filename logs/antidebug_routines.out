@@ -1,0 +1,6 @@
+Anti-Debugging:		Executable attempts to check for debugger via isDebuggerPresent 
+Anti-Debugging:		Executable attempts to check for debugger via SetUnhandledExceptionFilter 
+Anti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent 
+Anti-Debugging:		Executable attempts to switch desktop.
+Anti-Debugging:		Executable attempts block input.
+Anti-Debugging:		Executable enables SeDebugPrivilege as csrss.exe's SeDebugCheck is 0.
