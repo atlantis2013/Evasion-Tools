@@ -1,8 +1,0 @@
-Anti-VMWare:		SIDT/Redpill Technique
-Anti-VMWare:		SIDT/Redpill Technique
-
-
-Anti-VMWare:		Checking for vm environment (VMWare, VMTools in registry)
-Anti-Virtualization:	Checking on virtual disk.
-Anti-VirtualBox:		Checking for Vbox environment
-

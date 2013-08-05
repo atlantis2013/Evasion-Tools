@@ -86,15 +86,6 @@ const char * StripPath(const char * path)
         return path;
 }
 
-VOID Routine(RTN rtn, VOID *v)
-{
-    RTNNAME *rc = new RTNNAME;
-    rc->_name = RTN_Name(rtn);
-    // Add to list of routines
-    rc->_next = RtnList;
-    RtnList = rc;
-}
-
 bool isSeDebugCheck = 0;
 bool virtualdisk = 0;
 bool vm = 0;
@@ -103,10 +94,11 @@ bool windowsProduct = 0;
 
 VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 {
-    wstring w = wstring(arg1);
+	wstring w = wstring(arg1);
 	transform(w.begin(), w.end(),w.begin(),towupper);
 	//wcout << w << "\n";
 	//TraceRegistry.write((char*)arg1, wcslen(arg1) * sizeof(wchar_t));
+
 	TraceRegistry << arg1 << "\n";
 	if(w.find(L"VBOX") != w.npos && vbox == 0){
 		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
@@ -239,58 +231,93 @@ VOID Image(IMG img, VOID *v)
 // This function is called when the application exits
 // It prints the name for each procedure
 VOID RoutinesFini(INT32 code, VOID *v)
-{
-	ofstream outFile, outFile2;
-	//outFile2.open("logs\\allFunctions.out", ios::app|ios::out);
-		
-    for (RTNNAME * rc = RtnList; rc; rc = rc->_next)
-    {
-		//outFile2 << rc->_name << endl;
-		
-		if(rc->_name == "IsDebuggerPresent" && isdebuggerpresent == 0){
-			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
-			TraceAntiDebug<< "Anti-Debugging:		Executable attempts to check for debugger via isDebuggerPresent " << endl;
-			isdebuggerpresent = 1;
-		}
-
-		if(rc->_name == "CheckRemoteDebuggerPresent" && checkremote == 0){
-			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
-			TraceAntiDebug << "Anti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
-			checkremote = 1;
-		}
-
-		if(rc->_name == "SetUnhandledExceptionFilter" && SetUnhandledExceptionFilter == 0){
-			//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
-			TraceAntiDebug<< "Anti-Debugging:		Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
-			SetUnhandledExceptionFilter = 1;
-		}
-
-		if(rc->_name == "BlockInput" && blockInput == 0){
-			//TraceFile << "Anti-Debugging: Executable attempts block input." << endl;
-			TraceAntiDebug<< "Anti-Debugging:		Executable attempts block input." << endl;
-			blockInput = 1;
-		}
-		if(rc->_name == "SwitchDesktop"){
-			switchDesktop = 1;
-		}
-
-		if(rc->_name == "SetThreadDesktop"){
-			setThreadDesktop = 1;
-		}
-
-		if(switchDesktop == 1 && setThreadDesktop == 1){
-			//TraceFile << "Anti-Debugging: Executable attempts to switch desktop.\n";
-			TraceAntiDebug << "Anti-Debugging:		Executable attempts to switch desktop.\n";
-			switchDesktop = 0;
-			setThreadDesktop = 0;
-		}
-    }
-    
+{   
 }
 VOID Fini(INT32 code, VOID *v)
 {
     
     TraceFile.close();
+}
+
+VOID Routine(RTN rtn, VOID *v)
+{
+    RTNNAME *rc = new RTNNAME;
+    rc->_name = RTN_Name(rtn);
+    
+	
+	if(rc->_name == "RegOpenKeyExW"){
+		RTN_Open(rtn);
+		RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
+        IARG_ADDRINT, "RegOpenKeyExW",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(rtn);
+	}
+	if(rc->_name == "RegQueryValueExW")
+    {
+        RTN_Open(rtn);
+
+        RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegQueryKey,
+        IARG_ADDRINT, "RegQueryValueExW",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_END);
+        RTN_Close(rtn);
+    }
+
+	/* checks for SeDebug*/
+	if (rc->_name == "OpenProcess")
+    {
+        RTN_Open(rtn);
+
+        RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_Process,
+        IARG_ADDRINT, "OpenProcess",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(rtn);
+    }
+
+	// Checks for Debugger
+	if(rc->_name == "IsDebuggerPresent" && isdebuggerpresent == 0){
+		//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
+		TraceAntiDebug<< "Anti-Debugging:		Executable attempts to check for debugger via isDebuggerPresent " << endl;
+		isdebuggerpresent = 1;
+	}
+
+	if(rc->_name == "CheckRemoteDebuggerPresent" && checkremote == 0){
+		//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
+		TraceAntiDebug << "Anti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
+		checkremote = 1;
+	}
+
+	if(rc->_name == "SetUnhandledExceptionFilter" && SetUnhandledExceptionFilter == 0){
+		//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
+		TraceAntiDebug<< "Anti-Debugging:		Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
+		SetUnhandledExceptionFilter = 1;
+	}
+
+	if(rc->_name == "BlockInput" && blockInput == 0){
+		//TraceFile << "Anti-Debugging: Executable attempts block input." << endl;
+		TraceAntiDebug<< "Anti-Debugging:		Executable attempts block input." << endl;
+		blockInput = 1;
+	}
+	if(rc->_name == "SwitchDesktop"){
+		switchDesktop = 1;
+	}
+
+	if(rc->_name == "SetThreadDesktop"){
+		setThreadDesktop = 1;
+	}
+
+	if(switchDesktop == 1 && setThreadDesktop == 1){
+		//TraceFile << "Anti-Debugging: Executable attempts to switch desktop.\n";
+		TraceAntiDebug << "Anti-Debugging:		Executable attempts to switch desktop.\n";
+		switchDesktop = 0;
+		setThreadDesktop = 0;
+	}
+
 }
 
 int mainRoutine()
@@ -303,8 +330,8 @@ int mainRoutine()
     // Register Routine to be called to instrument rtn
     RTN_AddInstrumentFunction(Routine, 0);
     PIN_AddFiniFunction(RoutinesFini, 0);
-	IMG_AddInstrumentFunction(Image, 0);
-    PIN_AddFiniFunction(Fini, 0);
+	//IMG_AddInstrumentFunction(Image, (VOID *) 1);
+    //PIN_AddFiniFunction(Fini, 0);
     
     return 0;
 }

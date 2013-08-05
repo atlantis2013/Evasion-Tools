@@ -1,0 +1,70 @@
+SYSTEM\Setup
+SystemSetupInProgress
+Control Panel\Desktop
+SmoothScroll
+software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+EnableBalloonTips
+Software\Microsoft\Windows NT\CurrentVersion\LanguagePack
+Control Panel\Desktop
+SmoothScroll
+SOFTWARE\VMWare\VMTools
+SOFTWARE\VMWare, Inc.\VMware Tools
+SYSTEM\CurrentControlSet\Services\vmci
+SYSTEM\ControlSet001\Services\Disk\Enum\
+0
+0
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi bus 0\Target Id 0\Logical Unit Id 0
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 1\Scsi bus 0\Target Id 0\Logical Unit Id 0
+Identifier
+Identifier
+Software\Microsoft\Windows\CurrentVersion
+ProgramFilesDir
+Bind
+Bind
+Bind
+Bind
+Bind
+Bind
+SOFTWARE\Oracle\VirtualBox Guest Addtion
+SYSTEM\CurrentControlSet\Services\vboxguest
+SYSTEM\CurrentControlSet\Services\vboxmouse
+SYSTEM\CurrentControlSet\Services\vboxsf
+SYSTEM\CurrentControlSet\Services\vboxservice
+SYSTEM\CurrentControlSet\Services\Disk\Enum\
+0
+0
+HARDWARE\Description\System\
+SystemBiosSystem
+HARDWARE\Description\System\
+VideoBiosSystem
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi bus 0\Target Id 0\Logical Unit Id 0
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 1\Scsi bus 0\Target Id 0\Logical Unit Id 0
+Identifier
+Identifier
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 2\Scsi bus 0\Target Id 0\Logical Unit Id 0
+Identifier
+Identifier
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 3\Scsi bus 0\Target Id 0\Logical Unit Id 0
+Identifier
+Identifier
+Bind
+Bind
+Bind
+Bind
+Bind
+Bind
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi bus 0\Target Id 0\Logical Unit Id 0
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 1\Scsi bus 0\Target Id 0\Logical Unit Id 0
+Identifier
+Identifier
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 2\Scsi bus 0\Target Id 0\Logical Unit Id 0
+Identifier
+Identifier
+HARDWARE\DEVICEMAP\Scsi\Scsi Port 3\Scsi bus 0\Target Id 0\Logical Unit Id 0
+Identifier
+Identifier
+Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers
+Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers
+Software\Microsoft\Windows NT\CurrentVersion\
+ProductId
+ProductId

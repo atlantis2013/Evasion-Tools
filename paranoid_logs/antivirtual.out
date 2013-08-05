@@ -1,0 +1,11 @@
+Anti-VMWare:		SIDT/Redpill Technique
+Anti-VMWare:		SLDT Technique
+Anti-VMWare:		SMSW Technique
+Anti-VMWare:		IN Technique
+Anti-VMWare:		IN Technique
+
+
+Anti-VMWare:		Checking for vm environment (VMWare, VMTools in registry)
+Anti-Virtualization:	Checking on virtual disk.
+Anti-VirtualBox:		Checking for Vbox environment
+

@@ -1,0 +1,12 @@
+Anti-Debugging:		Executable is checking for ProcessDebugPort
+Anti-Debugging:		Executable is checking for SystemKernelDebuggerInformation
+Anti-Debugging:		Executable attempts to detach debugger.
+
+Anti-Debugging:		Executable enables SeDebugPrivilege.
+Anti-Debugging:		Executable attempts block input.
+Anti-Debugging:		Executable attempts to switch desktop.
+Anti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent 
+Anti-Debugging:		Executable attempts to check for debugger via SetUnhandledExceptionFilter 
+Anti-Debugging:		Executable attempts to check for debugger via isDebuggerPresent 
+
+
