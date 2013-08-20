@@ -152,6 +152,7 @@ void killSIDT(ADDRINT memoryAddr) {
  *m = 0xd00dbeef;
 }
 
+void killSTR(ADDRINT memoryAddr) { char *d = (char *)memoryAddr; unsigned int* m = (unsigned int *)(d); *m =0xbebaadde;}
 //Modify the magic value
 void killEAX() {
  unsigned int EAX_save;
@@ -194,6 +195,9 @@ void traceInst(INS ins, VOID*)
 		}
 		else if(ss.substr(0,6) == "in eax"){
 			INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)killEAX, IARG_END);
+		}
+		else if(ss.substr(0,3) == "str"){
+			INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)killSTR, IARG_END);
 		}
 	}
 
