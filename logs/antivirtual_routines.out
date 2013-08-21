@@ -1,3 +1,0 @@
-Anti-VMWare:		Checking for vm environment (VMWare, VMTools in registry)
-Anti-Virtualization:	Checking on virtual disk in registry.
-Anti-VirtualBox:		Checking for Vbox environment in registry.

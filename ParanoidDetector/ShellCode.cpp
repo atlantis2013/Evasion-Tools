@@ -139,36 +139,6 @@ void dump_shellcode(std::string* instructionString)
 	}
 }
 
-//intercept the memory addr, patch the return value
-void killSLDT(ADDRINT memoryAddr) {
- char *d = (char *)memoryAddr;
- unsigned int* m = (unsigned int *)(d);
- *m = 0xdead0000;
-}
-
-void killSIDT(ADDRINT memoryAddr) {
- char *d = (char *)memoryAddr;
- unsigned int* m = (unsigned int *)(d+2);
- *m = 0xd00dbeef;
-}
-
-void killSTR(ADDRINT memoryAddr) { char *d = (char *)memoryAddr; unsigned int* m = (unsigned int *)(d); *m =0xbebaadde;}
-//Modify the magic value
-void killEAX() {
- unsigned int EAX_save;
- unsigned short int DX_save;
- 
- __asm {
-	mov EAX_save, eax
-	mov DX_save, dx
- }
- 
- if ((EAX_save == 0x564D5868) && (DX_save == 0x5658)){
-	__asm {
-		mov dx, 0x0004
-	 }
-}
-}
 
 void traceInst(INS ins, VOID*)
 {
@@ -184,21 +154,6 @@ void traceInst(INS ins, VOID*)
 	else
 	{
 		legitInstructions.push_back(dumpInstruction(ins));
-		
-		// poisoning 
-		string ss = INS_Disassemble(ins);
-		if(ss.substr(0,4) == "sldt"){
-			INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)killSLDT, IARG_MEMORYWRITE_EA, IARG_END);
-		}
-		else if(ss.substr(0,4) == "sidt"){
-			INS_InsertCall(ins, IPOINT_AFTER, (AFUNPTR)killSIDT, IARG_MEMORYWRITE_EA, IARG_END);
-		}
-		else if(ss.substr(0,6) == "in eax"){
-			INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)killEAX, IARG_END);
-		}
-		else if(ss.substr(0,3) == "str"){
-			INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)killSTR, IARG_END);
-		}
 	}
 
 

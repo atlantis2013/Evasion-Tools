@@ -17,9 +17,12 @@ void setTraceFile(string file){
 	//traceFile2.open(file);
 }
 bool processdebug = 0;
+
 void syscall_entry(THREADID thread_id, CONTEXT *ctx,
     SYSCALL_STANDARD std, void *v)
 {
+	TraceAntiDebug2 << PIN_GetSyscallNumber(ctx,std) << ", " << PIN_GetSyscallArgument(ctx, std, 0) << endl;
+
 	// check for Certain System Call
 	if(processdebug ==0 && PIN_GetSyscallNumber(ctx,std) == 154 && PIN_GetSyscallArgument(ctx, std, 1) == 7){
 		//traceFile2 << "Traced: " << PIN_GetSyscallNumber(ctx,std) << " at 7 -> Anti-Debugging: Executable is checking for ProcessDebugPort\n";
@@ -50,4 +53,13 @@ void syscall_exit(THREADID thread_id, CONTEXT *ctx,
 void SystemCallfini(INT32, VOID*)
 {
    // traceFile2.close();
+}
+
+
+int mainSystemCall()
+{
+	setTraceFile("logs\\systemCall.out");
+	PIN_AddSyscallEntryFunction(&syscall_entry, NULL);
+    PIN_AddSyscallExitFunction(&syscall_exit, NULL);
+    return 0;
 }

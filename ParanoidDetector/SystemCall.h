@@ -9,5 +9,5 @@ void syscall_exit(THREADID thread_id, CONTEXT *ctx,
 
 void SystemCallfini(INT32, VOID*);
 void setTraceFile(string file);
-
+int mainSystemCall();
 //std::ofstream traceFile2;

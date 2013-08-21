@@ -1,9 +1,0 @@
-OpenProcess
-CheckRemoteDebuggerPresent
-OpenProcess
-OpenProcess
-CheckRemoteDebuggerPresent
-OpenProcess
-CheckRemoteDebuggerPresent
-OpenProcess
-IsDebuggerPresent
