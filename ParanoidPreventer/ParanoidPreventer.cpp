@@ -54,9 +54,17 @@ VOID killRegOpenKey(CHAR * name, wchar_t * entry, bool retVal, ADDRINT *addr){
 	wstring w = wstring(entry);
 	transform(w.begin(), w.end(),w.begin(),towupper);
 	
+	// Modify return value
 	if(w.find(L"VBOX") != w.npos || w.find(L"VMWARE") != w.npos || w.find(L"VM") != w.npos || w.find(L"ENUM")){
 		*addr = 2;
 	}
+}
+
+VOID killIsDebuggerPresent(CHAR * name, wchar_t * entry, bool retVal, ADDRINT *addr){
+	wstring w = wstring(entry);
+	transform(w.begin(), w.end(),w.begin(),towupper);
+
+	wcout << w << endl;
 }
 
 VOID Routine(RTN rtn, VOID *v)
@@ -70,9 +78,24 @@ VOID Routine(RTN rtn, VOID *v)
         RTN_Close(rtn);
     }
 
+	if (name == "GetProcAddress")
+	{
+		RTN_Open(rtn);
+		// call killRegOpenKey after RegOpenKeyExW is called
+		RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)killIsDebuggerPresent,
+        IARG_ADDRINT, "GetProcAddress",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCRET_EXITPOINT_VALUE,
+		IARG_FUNCRET_EXITPOINT_REFERENCE,
+        IARG_END);
+
+		RTN_Close(rtn);
+	}
+
 	if (name == "RegOpenKeyExW"){
 		RTN_Open(rtn);
 
+		// call killRegOpenKey after RegOpenKeyExW is called
 		RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)killRegOpenKey,
         IARG_ADDRINT, "RegOpenKeyExW",
         IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
@@ -109,7 +132,7 @@ int main(int argc, char * argv[])
 {	 
 	PIN_InitSymbols();
 	if(PIN_Init(argc, argv)) {
-        cerr << "This Pintool returns all the system calls that are executed" << endl;
+        cerr << "This Pintool modifies return values in certain memory addresses." << endl;
 		cerr << endl << KNOB_BASE::StringKnobSummary() << endl;
 		return 0;
     }
