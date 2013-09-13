@@ -1,1 +1,1 @@
-C:\pin\pin -t ParanoidDetector\Debug\PinTool.dll -- ParanoidMalware\Release\ParanoidMalwarePack.exe
+C:\pin\pin -t ParanoidDetector\Debug\ParanoidDetector.dll -- ParanoidMalware\Release\ParanoidMalwarePack.exe

@@ -14,6 +14,8 @@ using namespace std;
 void generateReport(){
 	std::ofstream FinalReport;
 
+	cout << "Working on final report...\n";
+
 	FinalReport.open("logs\\report.out");
 	string line;
 	string antivirtualization = "";
@@ -29,21 +31,24 @@ void generateReport(){
 		while ( antidebugsystem.good() )
 		{
 			getline (antidebugsystem,line);
-			antidebugging += line + "\n";
+			if (line !="\n")
+				antidebugging += line + "\n";
 		}
 		antidebugsystem.close();
 
 		while ( antidebugroutines.good() )
 		{
 			getline (antidebugroutines,line);
-			antidebugging += line + "\n";
+			if (line !="\n")
+				antidebugging += line + "\n";
 		}
 		antidebugroutines.close();
 
 		while ( antidebugshellCode.good() )
 		{
 			getline (antidebugshellCode,line);
-			antidebugging += line + "\n";
+			if (line !="\n")
+				antidebugging += line + "\n";
 		}
 		antidebugshellCode.close();
 	}
@@ -58,21 +63,24 @@ void generateReport(){
 		while ( antivirtualshellCode.good() )
 		{
 			getline (antivirtualshellCode,line);
-			antivirtualization += line + "\n";
+			if (line !="\n")
+				antivirtualization += line + "\n";
 		}
 		antivirtualshellCode.close();
 
 		while ( antivirtualsystem.good() )
 		{
 			getline (antivirtualsystem,line);
-			antivirtualization += line + "\n";
+			if (line !="\n")
+				antivirtualization += line + "\n";
 		}
 		antivirtualsystem.close();
 
 		while ( antivirtualroutines.good() )
 		{
 			getline (antivirtualroutines,line);
-			antivirtualization += line + "\n";
+			if (line !="\n")
+				antivirtualization += line + "\n";
 		}
 		antivirtualroutines.close();
 	}
@@ -87,7 +95,8 @@ void generateReport(){
 		while ( antisandboxsystem.good() )
 		{
 			getline (antisandboxsystem,line);
-			antisandbox += line + "\n";
+			if (line !="\n")
+				antisandbox += line + "\n";
 			
 		}
 		antisandboxsystem.close();
@@ -95,7 +104,8 @@ void generateReport(){
 		while ( antisandboxroutines.good() )
 		{
 			getline (antisandboxroutines,line);
-			antisandbox += line + "\n";
+			if (line !="\n")
+				antisandbox += line + "\n";
 			
 		}
 		antisandboxroutines.close();
@@ -103,7 +113,8 @@ void generateReport(){
 		while ( antisandboxshellCode.good() )
 		{
 			getline (antisandboxshellCode,line);
-			antisandbox += line + "\n";
+			if (line !="\n")
+				antisandbox += line + "\n";
 			
 		}
 		antisandboxshellCode.close();

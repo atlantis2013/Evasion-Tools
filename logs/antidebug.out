@@ -1,0 +1,11 @@
+debugger, system call, "ProcessDebugPort"
+debugger, system call, "SystemKernelDebuggerInformation"
+debugger, system call, "detach debugger"
+
+debugger, api, "SetUnhandledExceptionFilter"
+debugger, api, "blockInput"
+debugger, process, "csrss.exe", "SeDebugPrivileges"
+debugger, api, "isDebuggerPresent"
+debugger, api, "CheckremoteDebuggerPresent"
+
+

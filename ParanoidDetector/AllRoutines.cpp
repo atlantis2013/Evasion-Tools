@@ -202,26 +202,26 @@ VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 	//TraceRegistry << arg1 << "\n";
 	if(w.find(L"VBOX") != w.npos && vbox == 0){
 		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
-		TraceAntiVirtual << "Anti-VirtualBox:		Checking for Vbox environment in registry." << "\n";
+		TraceAntiVirtual << "virtualbox,registry,\"vbox\"" << endl;
 		vbox = 1;
 	}
 
 	if(w.find(L"VIRTUALBOX") != w.npos && vbox == 0){
 		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
-		TraceAntiVirtual << "Anti-VirtualBox:		Checking for Vbox environment in registry." << "\n";
+		TraceAntiVirtual << "virtualbox, registry, \"virtualbox\"" << "\n";
 		vbox = 1;
 	}
 
 	if( w.find(L"VMWARE") != w.npos || w.find(L"VMTOOLS") != w.npos || w.find(L"VM") != w.npos){
 		if(vm==0){
 			//TraceFile << "Anti-VM: Checking for vm environment (VMWare, VMTools in registry)" << "\n";
-			TraceAntiVirtual << "Anti-VMWare:		Checking for vm environment (VMWare, VMTools in registry)" << "\n";
+			TraceAntiVirtual << "vmware, registry, \"vm\"" << "\n";
 			vm = 1;
 		}
 	}
 
 	if( w.find(L"VideoBios") != w.npos){
-		TraceAntiVirtual << "Anti-VM:	Checking for VMs enironment in registry via VideoBiosSystem" << "\n";
+		TraceAntiVirtual << "vmware, registry, \"videobios\"" << "\n";
 	}
 
 }
@@ -230,25 +230,23 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 {
     wstring w = L" " + wstring(arg1) + L" " ;
 	transform(w.begin(), w.end(),w.begin(),towupper);
-	//TraceRegistry.write((char*)arg1, wcslen(arg1) * sizeof(wchar_t));
-	//TraceRegistry << arg1 << "\n";
-	//wcout << w << "\n";
+	
 	if(w.find(L" 0 ") != w.npos || w.find(L" IDENTIFIER ")!= w.npos){
 		if(virtualdisk == 0){
 			//TraceFile << "Anti-Virtualization: Checking on virtual disk.\n";
-			TraceAntiVirtual << "Anti-Virtualization:	Checking on virtual disk in registry.\n";
+			TraceAntiVirtual << "vmware, registry, \"0\", \"identifier\"\n";
 			virtualdisk =1 ;
 		}
 	}
 
 	if(w.find(L" PRODUCTID ") != w.npos && windowsProduct == 0){
 		//TraceFile << "Anti-Sandbox: Checking on Windows Operating system's product ID\n";
-		TraceAntiSandbox << "Anti-Sandbox:		Checking on Windows Operating system's product ID in registry\n";
+		TraceAntiSandbox << "sandbox, registry, \"productid\"\n";
 		windowsProduct = 1;
 	}
 
 	if( w.find(L"VideoBios") != w.npos){
-		TraceAntiVirtual << "Anti-VM:	Checking for VMs enironment in registry via VideoBiosSystem" << "\n";
+		TraceAntiVirtual << "vmware, registry, \"videobios\"" << "\n";
 	}
 
 }
@@ -257,22 +255,22 @@ VOID PrintArguments_Process(CHAR * name, ADDRINT arg0)
 {
 	if(WINDOWS::getProcessID("csrss.exe") == arg0 && isSeDebugCheck == 0){
 		//TraceFile << "Anti-Debugging: Executable enables SeDebugPrivilege." << endl;
-		TraceAntiDebug << "Anti-Debugging:		Executable enables SeDebugPrivilege as csrss.exe's SeDebugCheck is 0." << endl;
+		TraceAntiDebug << "debugger, process, \"csrss.exe\", \"SeDebugPrivileges\"\n";
 		isSeDebugCheck = 1;
 	}
 
 	if(WINDOWS::getProcessID("vmacthlp.exe") == arg0 && vmacthlp == 0){
-		TraceAntiVirtual << "Anti-VMWare:	Checking for VM process -> vmacthlp.exe\n";
+		TraceAntiVirtual << "vmware, process, \"vmacthlp.exe\"\n";
 		vmacthlp = 1;
 	}
 
 	if(WINDOWS::getProcessID("vmtoolsd.exe") == arg0 && vmtoolsd == 0){
-		TraceAntiVirtual << "Anti-VMWare:	Checking for VM process -> vmtoolsd.exe\n";
+		TraceAntiVirtual << "vmware, process, \"vmtoolsd.exe\"\n";
 		vmtoolsd = 1;
 	}
 
 	if(WINDOWS::getProcessID("VMwareTray.exe") == arg0 && vmwaretray == 0){
-		TraceAntiVirtual << "Anti-VMWare:	Checking for VM process -> vmwaretray.exe\n";
+		TraceAntiVirtual << "vmware, process, \"vmwaretray.exe\"\n";
 		vmwaretray = 1;
 	}
 }
@@ -285,9 +283,22 @@ VOID PrintArguments_FindWindow(CHAR * name, wchar_t * arg0)
 	TraceFile << w.c_str() << "\n";
 }
 
-VOID PrintArguments_Debugger(CHAR * name, ADDRINT arg0){
-	//printf("Isdebugger: %x\n", arg0);
+VOID checkIsDebuggerPresent(CHAR * name, bool retVal){
+	TraceAntiDebug << "debugger, api, \"isDebuggerPresent\"\n";
+	isdebuggerpresent = 1;
 }
+
+VOID checkIsRemoteDebuggerPresent(CHAR *name, bool retVal){
+	TraceAntiDebug << "debugger, api, \"CheckremoteDebuggerPresent\"\n";
+	checkremote = 1;
+}
+
+VOID PrintArguments_OpenFile(CHAR * name, ADDRINT arg0, ADDRINT arg1){
+	//printf("FILEHANDLE: %x, %x\n", arg0,arg1);
+	//WINDOWS::GetFileNameFromHandle((WINDOWS::HANDLE) arg0);
+}
+
+
 VOID Image(IMG img, VOID *v)
 {
 	RTN cfwRtn = RTN_FindByName(img, "RegOpenKeyExW");
@@ -354,22 +365,15 @@ VOID RoutinesFini(INT32 code, VOID *v)
 }
 VOID Fini(INT32 code, VOID *v)
 {
-    
     TraceFile.close();
 }
 
-VOID PrintArguments_OpenFile(CHAR * name, ADDRINT arg0, ADDRINT arg1){
-	printf("FILEHANDLE: %x, %x\n", arg0,arg1);
-	//WINDOWS::GetFileNameFromHandle((WINDOWS::HANDLE) arg0);
-}
+
 VOID Routine(RTN rtn, VOID *v)
 {
     RTNNAME *rc = new RTNNAME;
     rc->_name = RTN_Name(rtn);
-    
-	//TraceAntiDebug << rc->_name << endl;
-
-	
+ 
 	if(rc->_name == "RegOpenKeyExW"){
 		RTN_Open(rtn);
 		RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_RegOpenKey,
@@ -406,51 +410,36 @@ VOID Routine(RTN rtn, VOID *v)
 
 	// Checks for Debugger
 	if(rc->_name == "IsDebuggerPresent" && isdebuggerpresent == 0){
-		//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via isDebuggerPresent " << endl;
-		TraceAntiDebug<< "Anti-Debugging:		Executable attempts to check for debugger via isDebuggerPresent " << endl;
-		isdebuggerpresent = 1;
-
 		RTN_Open(rtn);
-        RTN_InsertCall(rtn, IPOINT_BEFORE, (AFUNPTR)PrintArguments_Debugger,
+
+		RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)checkIsDebuggerPresent,
         IARG_ADDRINT, "IsDebuggerPresent",
-        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCRET_EXITPOINT_VALUE,
         IARG_END);
-        RTN_Close(rtn);
-		
+
+		RTN_Close(rtn);
 	}
 
 	if(rc->_name == "CheckRemoteDebuggerPresent" && checkremote == 0){
-		//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
-		TraceAntiDebug << "Anti-Debugging:		Executable attempts to check for debugger via CheckRemoteDebuggerPresent " << endl;
-		checkremote = 1;
+		RTN_Open(rtn);
+
+		RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)checkIsRemoteDebuggerPresent,
+        IARG_ADDRINT, "CheckRemoteDebuggerPresent",
+        IARG_FUNCRET_EXITPOINT_VALUE,
+        IARG_END);
+
+		RTN_Close(rtn);
 	}
 
 	if(rc->_name == "SetUnhandledExceptionFilter" && SetUnhandledExceptionFilter == 0){
-		//TraceFile << "Anti-Debugging: Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
-		TraceAntiDebug<< "Anti-Debugging:		Executable attempts to check for debugger via SetUnhandledExceptionFilter " << endl;
+		TraceAntiDebug << "debugger, api, \"SetUnhandledExceptionFilter\"\n";
 		SetUnhandledExceptionFilter = 1;
 	}
 
 	if(rc->_name == "BlockInput" && blockInput == 0){
-		//TraceFile << "Anti-Debugging: Executable attempts block input." << endl;
-		TraceAntiDebug<< "Anti-Debugging:		Executable attempts block input." << endl;
+		TraceAntiDebug << "debugger, api, \"blockInput\"\n";
 		blockInput = 1;
 	}
-	if(rc->_name == "SwitchDesktop"){
-		switchDesktop = 1;
-	}
-
-	if(rc->_name == "SetThreadDesktop"){
-		setThreadDesktop = 1;
-	}
-
-	if(switchDesktop == 1 && setThreadDesktop == 1){
-		//TraceFile << "Anti-Debugging: Executable attempts to switch desktop.\n";
-		TraceAntiDebug << "Anti-Debugging:		Executable attempts to switch desktop.\n";
-		switchDesktop = 0;
-		setThreadDesktop = 0;
-	}
-
 }
 
 int mainRoutine()

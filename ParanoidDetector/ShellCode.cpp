@@ -45,39 +45,32 @@ void detect(std::string thisItr){
 	// Anti-VirtualPC, if eax is invalid
 	if(thisItr.find("ret") != thisItr.npos){
 		if(prevInst.find("mov eax, 1") != prevInst.npos){
-			TraceAntiVirtual3 << thisItr << endl;
-			TraceAntiVirtual3 << "Anti-VirtualBox:	ret/mov eax, 1 detected. Detected Invalid Technique\n" << endl;
+			TraceAntiVirtual3 << "virtualbox, invalid instruction, \"" << thisItr << "\"" << endl;
 		}
 	}
 
 	if(thisItr.find("0f3f070b") != thisItr.npos){
-		if(prevInst.find("mov eax, 1") != prevInst.npos){
-			TraceAntiVirtual3 << thisItr << endl;
-			TraceAntiVirtual3 << "Anti-VirtualPC:		0f3f070b spotted. Detected Invalid Instruction Technique\n" << endl;
+		if(prevInst.find("mov eax, 1") != prevInst.npos){		
+			TraceAntiVirtual3 << "virtualPC, invalid instruction, \"" << thisItr << "\"" << endl;
 		}
 	}
 
 	// Anti-VM
 	if(thisItr.find("0F 01 E0") != thisItr.npos){
 		if(prevInst.find("B8 CC CC CC CC") != prevInst.npos){
-			TraceAntiVirtual3 << thisItr << endl;
-			TraceAntiVirtual3 << "Anti-VMWare:		smsw eax spotted. Detected the SMSW Technique\n"  << endl;
+			TraceAntiVirtual3 << "vmware, smsw, \"" << thisItr << "\"" << endl;
 		}
 	}
 
 	if(thisItr.find("0xdead0000") != thisItr.npos){
-			TraceAntiVirtual3 << thisItr << endl;
-			TraceAntiVirtual3 << "Anti-VMWare:		0xdead0000 spotted. Detected the SLDT Technique\n" << endl;
+			TraceAntiVirtual3 << "vmware, sldt, \"" << thisItr << "\"" << endl;
 	}
 
 	if(thisItr.find("sidt ") != thisItr.npos){
-		TraceAntiVirtual3 << thisItr << endl;
-		TraceAntiVirtual3 << "Anti-VMWare:		SIDT spotted. Detected the SIDT/Redpill Technique\n" << endl;
+		TraceAntiVirtual3 << "vmware, sidt, \"" << thisItr << "\"" << endl;
 	}
 	if(thisItr.find("0x564d5868") != thisItr.npos){
-		TraceAntiVirtual3 << thisItr << endl;
-		TraceAntiVirtual3 << "Anti-VMWare:  ";
-		TraceAntiVirtual3 << "	0x564d5868 spotted. Detected the IN Technique\n" << endl;
+		TraceAntiVirtual3 << "vmware, IN, \"" << thisItr << "\"" << endl;
 	}
 
 }

@@ -1,0 +1,31 @@
+vmware, sidt, "0x00404F77 0F 01 4D F4         sidt ptr [ebp-0xc]"
+vmware, sldt, "0x00404FAD 81 7D F4 00 00 AD DE      cmp dword ptr [ebp-0xc], 0xdead0000"
+vmware, IN, "0x00405131 B8 68 58 4D 56        mov eax, 0x564d5868"
+vmware, IN, "0x00405146 81 FB 68 58 4D 56       cmp ebx, 0x564d5868"
+vmware, IN, "0x00405131 B8 68 58 4D 56        mov eax, 0x564d5868"
+vmware, IN, "0x00405146 81 FB 68 58 4D 56       cmp ebx, 0x564d5868"
+vmware, sidt, "0x0012FF5C 0F 01 0D 68 FF 12 00      sidt ptr [0x12ff68]"
+
+
+vmware, process, "vmacthlp.exe"
+vmware, process, "vmwaretray.exe"
+vmware, process, "vmtoolsd.exe"
+vmware, registry, "vm"
+vmware, registry, "0", "identifier"
+virtualbox, registry, "virtualbox"
+
+
+sandbox, registry, "productid"
+
+
+debugger, system call, "ProcessDebugPort"
+debugger, system call, "SystemKernelDebuggerInformation"
+debugger, system call, "detach debugger"
+
+debugger, api, "SetUnhandledExceptionFilter"
+debugger, api, "blockInput"
+debugger, process, "csrss.exe", "SeDebugPrivileges"
+debugger, api, "isDebuggerPresent"
+debugger, api, "CheckremoteDebuggerPresent"
+
+
