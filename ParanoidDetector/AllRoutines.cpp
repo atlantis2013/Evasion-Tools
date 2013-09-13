@@ -199,7 +199,7 @@ VOID PrintArguments_RegOpenKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
 	//wcout << w << "\n";
 	//TraceRegistry.write((char*)arg1, wcslen(arg1) * sizeof(wchar_t));
 
-	TraceRegistry << arg1 << "\n";
+	//TraceRegistry << arg1 << "\n";
 	if(w.find(L"VBOX") != w.npos && vbox == 0){
 		//TraceFile << "Anti-VirtualBox: Checking for Vbox environment" << "\n";
 		TraceAntiVirtual << "Anti-VirtualBox:		Checking for Vbox environment in registry." << "\n";
@@ -231,7 +231,7 @@ VOID PrintArguments_RegQueryKey(CHAR * name, ADDRINT arg0, wchar_t * arg1)
     wstring w = L" " + wstring(arg1) + L" " ;
 	transform(w.begin(), w.end(),w.begin(),towupper);
 	//TraceRegistry.write((char*)arg1, wcslen(arg1) * sizeof(wchar_t));
-	TraceRegistry << arg1 << "\n";
+	//TraceRegistry << arg1 << "\n";
 	//wcout << w << "\n";
 	if(w.find(L" 0 ") != w.npos || w.find(L" IDENTIFIER ")!= w.npos){
 		if(virtualdisk == 0){
@@ -367,7 +367,7 @@ VOID Routine(RTN rtn, VOID *v)
     RTNNAME *rc = new RTNNAME;
     rc->_name = RTN_Name(rtn);
     
-	TraceAntiDebug << rc->_name << endl;
+	//TraceAntiDebug << rc->_name << endl;
 
 	
 	if(rc->_name == "RegOpenKeyExW"){
