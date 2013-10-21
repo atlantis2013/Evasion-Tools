@@ -6,6 +6,10 @@ namespace WINDOWS
 	#include<Tlhelp32.h>
 }
 
+static UINT64 icount = 0;
+
+VOID docount() { icount++; }
+
 // Anti-Virtualization Preventer
 
 void killSLDT(ADDRINT memoryAddr) {
@@ -45,9 +49,19 @@ void killEAX() {
 
 // End of Anti-Virtualization Preventer
 
+VOID killCreateFile(CHAR * name, CHAR * entry, bool retVal, ADDRINT *addr){
+	if(strstr(entry, "vm")!=NULL || strstr(entry, "ORACLE")!=NULL || strstr(entry, "VM")!=NULL){
+		if(*addr == 32){
+			*addr = -1;
+		}
+	}
+}
+
 // Start of Routine Replacement
-VOID killOpenProcess(){
+VOID killOpenProcess(CHAR * name, wchar_t * entry, bool retVal, ADDRINT *addr){
 	// just a null function
+	// of course we 're not supposed to do this.
+	*addr = NULL;
 }
 
 VOID killRegOpenKey(CHAR * name, wchar_t * entry, bool retVal, ADDRINT *addr){
@@ -74,8 +88,13 @@ VOID Routine(RTN rtn, VOID *v)
 	if (name == "OpenProcess")
     {
         RTN_Open(rtn);
-		RTN_Replace(rtn, (AFUNPTR) killOpenProcess);
-        RTN_Close(rtn);
+		RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR)killOpenProcess,
+        IARG_ADDRINT, "OpenProcess",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
+        IARG_FUNCRET_EXITPOINT_VALUE,
+		IARG_FUNCRET_EXITPOINT_REFERENCE,
+        IARG_END);
+		RTN_Close(rtn);
     }
 
 	if (name == "GetProcAddress")
@@ -113,6 +132,8 @@ void traceInst(INS ins, VOID*)
 {
 	ADDRINT address = INS_Address(ins);
 	
+	INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)docount, IARG_END); // count the number of instruction
+
 	string ss = INS_Disassemble(ins);
 	if(ss.substr(0,4) == "sldt"){
 		INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)killSLDT, IARG_MEMORYWRITE_EA, IARG_END);
@@ -128,6 +149,23 @@ void traceInst(INS ins, VOID*)
 	}
 }
 
+VOID Image(IMG img, VOID *v)
+{
+	RTN cfwRtn = RTN_FindByName(img, "GetFileAttributesA");
+    
+	if (RTN_Valid(cfwRtn))
+    {
+		RTN_Open(cfwRtn);
+		RTN_InsertCall(cfwRtn, IPOINT_AFTER, (AFUNPTR)killCreateFile,
+        IARG_ADDRINT, "GetFileAttributesA",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCRET_EXITPOINT_VALUE,
+		IARG_FUNCRET_EXITPOINT_REFERENCE,
+        IARG_END);
+		RTN_Close(cfwRtn);
+    }
+}
+
 int main(int argc, char * argv[])
 {	 
 	PIN_InitSymbols();
@@ -139,6 +177,7 @@ int main(int argc, char * argv[])
 
 	INS_AddInstrumentFunction(traceInst, 0);
 	RTN_AddInstrumentFunction(Routine, 0);
+	IMG_AddInstrumentFunction(Image, (VOID *) 1);
 
     PIN_StartProgram();
     return 0;

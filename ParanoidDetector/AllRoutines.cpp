@@ -293,6 +293,10 @@ VOID checkIsRemoteDebuggerPresent(CHAR *name, bool retVal){
 	checkremote = 1;
 }
 
+VOID checkGetFileAttributes(CHAR * name, ADDRINT arg0){
+	//TraceAntiDebug << name << endl;
+}
+
 VOID PrintArguments_OpenFile(CHAR * name, ADDRINT arg0, ADDRINT arg1){
 	//printf("FILEHANDLE: %x, %x\n", arg0,arg1);
 	//WINDOWS::GetFileNameFromHandle((WINDOWS::HANDLE) arg0);
@@ -311,6 +315,19 @@ VOID Image(IMG img, VOID *v)
         IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
         IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
         IARG_FUNCARG_ENTRYPOINT_VALUE, 2,
+        IARG_END);
+        RTN_Close(cfwRtn);
+    }
+
+	cfwRtn = RTN_FindByName(img, "GetFileAttributesA");
+    if (RTN_Valid(cfwRtn))
+    {
+        RTN_Open(cfwRtn);
+
+        RTN_InsertCall(cfwRtn, IPOINT_BEFORE, (AFUNPTR)checkGetFileAttributes,
+        IARG_ADDRINT, "GetFileAttributesA",
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 0,
+        IARG_FUNCARG_ENTRYPOINT_VALUE, 1,
         IARG_END);
         RTN_Close(cfwRtn);
     }
@@ -432,12 +449,12 @@ VOID Routine(RTN rtn, VOID *v)
 	}
 
 	if(rc->_name == "SetUnhandledExceptionFilter" && SetUnhandledExceptionFilter == 0){
-		TraceAntiDebug << "debugger, api, \"SetUnhandledExceptionFilter\"\n";
+		//TraceAntiDebug << "debugger, api, \"SetUnhandledExceptionFilter\"\n";
 		SetUnhandledExceptionFilter = 1;
 	}
 
 	if(rc->_name == "BlockInput" && blockInput == 0){
-		TraceAntiDebug << "debugger, api, \"blockInput\"\n";
+		//TraceAntiDebug << "debugger, api, \"blockInput\"\n";
 		blockInput = 1;
 	}
 }
