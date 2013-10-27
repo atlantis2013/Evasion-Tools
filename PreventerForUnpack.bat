@@ -1,1 +1,0 @@
-C:\pin\pin -t ParanoidPreventer\Debug\ParanoidPreventer.dll -- ParanoidMalware\Release\ParanoidMalware.exe
